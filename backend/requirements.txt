@@ -1,0 +1,187 @@
+# Core Flask dependencies
+Flask
+Flask-CORS
+
+# Authentication and Security
+PyJWT
+bcrypt
+cryptography
+
+# Firebase dependencies
+firebase-admin
+google-cloud-firestore
+
+# AI and ML dependencies
+openai
+scikit-learn
+numpy
+pandas
+tensorflow
+torch
+transformers
+
+# Time series forecasting
+statsmodels
+pmdarima
+
+# Voice processing
+SpeechRecognition
+pydub
+pyaudio
+
+# Natural Language Processing
+nltk
+textblob
+spacy
+
+# PDF generation
+reportlab
+matplotlib
+seaborn
+
+# Email utilities
+secure-smtplib
+
+# HTTP and API utilities
+requests
+urllib3
+
+# Environment and configuration
+python-dotenv
+
+# Date and time utilities
+python-dateutil
+
+# Development and testing dependencies
+pytest
+pytest-flask
+pytest-cov
+flask-testing
+
+# Code quality
+flake8
+black
+isort
+
+# Rate limiting and caching
+Flask-Limiter
+redis
+
+# Data validation
+marshmallow
+webargs
+
+# File handling
+Pillow
+python-magic
+
+# Logging and monitoring
+structlog
+
+# API documentation
+flask-apispec
+apispec
+
+# Background tasks (optional)
+celery
+
+# Database utilities (if needed beyond Firebase)
+SQLAlchemy
+
+# Utility libraries
+click
+python-slugify
+uuid
+
+# Production server
+gunicorn
+
+# Development server
+flask-debugtoolbar
+
+# Testing utilities
+factory-boy
+faker
+
+# Performance monitoring
+psutil
+
+# JSON handling
+orjson
+
+# HTTP client for testing
+httpx
+
+# Environment variable management
+environs
+
+# Data serialization
+pydantic
+
+# Async support (if needed)
+asyncio
+
+# Image processing
+opencv-python
+
+# Excel file handling (if needed)
+openpyxl
+xlsxwriter
+
+# CSV handling
+csvkit
+
+# Time zone handling
+pytz
+
+# Web scraping (if needed for competitor pricing)
+beautifulsoup4
+lxml
+
+# API rate limiting
+slowapi
+
+# Configuration management
+dynaconf
+
+# Monitoring and health checks
+flask-healthz
+
+# Schema validation
+jsonschema
+
+# Performance profiling
+py-spy
+
+# Memory profiling
+memory-profiler
+
+# Static file serving
+whitenoise
+
+# Production deployment
+waitress
+
+# Audio processing
+librosa
+soundfile
+
+# Language detection
+langdetect
+
+# Geospatial analysis
+geopy
+folium
+
+# Caching
+cachetools
+
+# Mathematical operations
+scipy
+
+# Graph analysis (for recommendation systems)
+networkx
+
+# Fuzzy string matching
+fuzzywuzzy
+python-Levenshtein
