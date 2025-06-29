@@ -1,0 +1,69 @@
+### Health Check
+GET http://localhost:5000/
+
+### Get All Products
+GET http://localhost:5000/api/products
+
+### Get Single Product
+GET http://localhost:5000/api/products/123
+
+### Create Product
+POST http://localhost:5000/api/products
+Content-Type: application/json
+
+{
+  "name": "API Test Product",
+  "price": 25.99,
+  "category": "Test",
+  "description": "Created via API test",
+  "in_stock": true
+}
+
+### Update Product
+PUT http://localhost:5000/api/products/123
+Content-Type: application/json
+
+{
+  "name": "Updated Test Product",
+  "price": 35.99,
+  "category": "Updated Category"
+}
+
+### Delete Product
+DELETE http://localhost:5000/api/products/123
+
+### Register User
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "testpassword123",
+  "name": "Test User"
+}
+
+### Login User
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "testpassword123"
+}
+
+### Get Product Feedback
+GET http://localhost:5000/api/feedback/123
+
+### Submit Feedback
+POST http://localhost:5000/api/feedback
+Content-Type: application/json
+
+{
+  "product_id": "product-123",
+  "rating": 5,
+  "comment": "Great product!",
+  "user_name": "John Doe"
+}
+
+### Test Health Endpoint
+GET http://localhost:5000/health

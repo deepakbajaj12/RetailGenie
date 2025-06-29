@@ -1,0 +1,207 @@
+### RetailGenie API Tests - Versioned APIs
+### Test both V1 and V2 API endpoints
+
+### Base URL Configuration
+@baseUrl = http://localhost:5000
+
+### API Version Headers
+@v1Headers = API-Version: v1
+@v2Headers = API-Version: v2
+
+### ======================
+### Main API Info Tests
+### ======================
+
+### Get main API info
+GET {{baseUrl}}/
+Content-Type: application/json
+
+### Health check
+GET {{baseUrl}}/health
+Content-Type: application/json
+
+### ======================
+### API V1 Tests (Stable)
+### ======================
+
+### V1 API Info
+GET {{baseUrl}}/api/v1/info
+Content-Type: application/json
+
+### V1 Health Check
+GET {{baseUrl}}/api/v1/health
+Content-Type: application/json
+
+### V1 Get All Products
+GET {{baseUrl}}/api/v1/products
+Content-Type: application/json
+
+### V1 Create Product
+POST {{baseUrl}}/api/v1/products
+Content-Type: application/json
+
+{
+    "name": "V1 Test Product",
+    "price": 99.99,
+    "category": "Test Category",
+    "description": "A test product created via V1 API",
+    "in_stock": true
+}
+
+### V1 Get Single Product (replace with actual ID)
+GET {{baseUrl}}/api/v1/products/product-id-here
+Content-Type: application/json
+
+### V1 Submit Feedback
+POST {{baseUrl}}/api/v1/feedback
+Content-Type: application/json
+
+{
+    "content": "Great V1 API experience!",
+    "rating": 5,
+    "user_id": "test_user_v1"
+}
+
+### V1 Login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "testpassword"
+}
+
+### V1 Analytics
+GET {{baseUrl}}/api/v1/analytics/dashboard
+Content-Type: application/json
+
+### V1 AI Chat
+POST {{baseUrl}}/api/v1/ai/chat
+Content-Type: application/json
+
+{
+    "message": "Hello V1 AI Assistant!"
+}
+
+### ======================
+### API V2 Tests (Enhanced)
+### ======================
+
+### V2 API Info
+GET {{baseUrl}}/api/v2/info
+Content-Type: application/json
+
+### V2 Health Check
+GET {{baseUrl}}/api/v2/health
+Content-Type: application/json
+
+### V2 Get All Products (with filters)
+GET {{baseUrl}}/api/v2/products?category=Electronics&min_price=100&sort_by=price&limit=10
+Content-Type: application/json
+
+### V2 Create Enhanced Product
+POST {{baseUrl}}/api/v2/products
+Content-Type: application/json
+
+{
+    "name": "V2 Enhanced Product",
+    "price": 199.99,
+    "category": "Electronics",
+    "description": "An enhanced product created via V2 API with more features",
+    "in_stock": true,
+    "stock_quantity": 25,
+    "sku": "V2-PROD-001",
+    "tags": ["v2", "enhanced", "test"],
+    "images": ["product1.jpg", "product2.jpg"],
+    "specifications": {
+        "color": "Black",
+        "weight": "2.5kg",
+        "warranty": "2 years"
+    }
+}
+
+### V2 Get Single Product (replace with actual ID)
+GET {{baseUrl}}/api/v2/products/product-id-here
+Content-Type: application/json
+
+### V2 Advanced Search
+GET {{baseUrl}}/api/v2/search?q=wireless
+Content-Type: application/json
+
+### V2 Product Recommendations (replace with actual product ID)
+GET {{baseUrl}}/api/v2/recommendations/product-id-here
+Content-Type: application/json
+
+### V2 Enhanced Analytics
+GET {{baseUrl}}/api/v2/analytics/dashboard
+Content-Type: application/json
+
+### V2 Enhanced AI Chat
+POST {{baseUrl}}/api/v2/ai/chat
+Content-Type: application/json
+
+{
+    "message": "Show me product analytics",
+    "context": {
+        "user_id": "test_user_v2",
+        "session_id": "session_123"
+    }
+}
+
+### ======================
+### Header-based Versioning Tests
+### ======================
+
+### Products with V1 Header
+GET {{baseUrl}}/api/v1/products
+Content-Type: application/json
+{{v1Headers}}
+
+### Products with V2 Header
+GET {{baseUrl}}/api/v2/products
+Content-Type: application/json
+{{v2Headers}}
+
+### ======================
+### Admin/Database Tests
+### ======================
+
+### Initialize Database with Sample Data
+POST {{baseUrl}}/api/admin/init-database
+Content-Type: application/json
+
+### ======================
+### Error Handling Tests
+### ======================
+
+### Test 404 - Invalid V1 Endpoint
+GET {{baseUrl}}/api/v1/invalid-endpoint
+Content-Type: application/json
+
+### Test 404 - Invalid V2 Endpoint
+GET {{baseUrl}}/api/v2/invalid-endpoint
+Content-Type: application/json
+
+### Test V2 Only Endpoint via V1 (should fail)
+GET {{baseUrl}}/api/v1/search?q=test
+Content-Type: application/json
+
+### ======================
+### Performance Tests
+### ======================
+
+### Multiple V1 Requests
+GET {{baseUrl}}/api/v1/products
+Content-Type: application/json
+
+###
+GET {{baseUrl}}/api/v1/health
+Content-Type: application/json
+
+### Multiple V2 Requests
+GET {{baseUrl}}/api/v2/products
+Content-Type: application/json
+
+###
+GET {{baseUrl}}/api/v2/health
+Content-Type: application/json

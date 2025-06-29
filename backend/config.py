@@ -1,76 +1,82 @@
 import os
 from datetime import timedelta
+
 from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class Config:
     """Application configuration class"""
-    
+
     # Basic Flask configuration
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() in ['true', '1', 'yes']
-    
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "dev-secret-key-change-in-production"
+    DEBUG = os.environ.get("FLASK_DEBUG", "False").lower() in ["true", "1", "yes"]
+
     # JWT Configuration
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-key-change-in-production'
+    JWT_SECRET_KEY = (
+        os.environ.get("JWT_SECRET_KEY") or "jwt-secret-key-change-in-production"
+    )
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
-    
+
     # Firebase Configuration
-    FIREBASE_CREDENTIALS_PATH = os.environ.get('FIREBASE_CREDENTIALS_PATH')
-    FIREBASE_PROJECT_ID = os.environ.get('FIREBASE_PROJECT_ID')
-    
+    FIREBASE_CREDENTIALS_PATH = os.environ.get("FIREBASE_CREDENTIALS_PATH")
+    FIREBASE_PROJECT_ID = os.environ.get("FIREBASE_PROJECT_ID")
+
     # Email Configuration
-    SMTP_SERVER = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
-    SMTP_PORT = int(os.environ.get('SMTP_PORT', '587'))
-    SENDER_EMAIL = os.environ.get('SENDER_EMAIL')
-    SENDER_PASSWORD = os.environ.get('SENDER_PASSWORD')
-    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@retailgenie.com')
-    
+    SMTP_SERVER = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
+    SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+    SENDER_EMAIL = os.environ.get("SENDER_EMAIL")
+    SENDER_PASSWORD = os.environ.get("SENDER_PASSWORD")
+    ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@retailgenie.com")
+
     # OpenAI Configuration
-    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
-    
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
     # File Upload Configuration
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-    UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', 'uploads')
-    
+    UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", "uploads")
+
     # PDF Reports Configuration
-    PDF_OUTPUT_DIR = os.environ.get('PDF_OUTPUT_DIR', 'reports')
-    
+    PDF_OUTPUT_DIR = os.environ.get("PDF_OUTPUT_DIR", "reports")
+
     # CORS Configuration
-    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000').split(',')
-    
+    CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "http://localhost:3000").split(",")
+
     # Pagination Configuration
     DEFAULT_PAGE_SIZE = 20
     MAX_PAGE_SIZE = 100
-    
+
     # Cache Configuration
-    CACHE_TYPE = os.environ.get('CACHE_TYPE', 'simple')
+    CACHE_TYPE = os.environ.get("CACHE_TYPE", "simple")
     CACHE_DEFAULT_TIMEOUT = 300  # 5 minutes
-    
+
     # Logging Configuration
-    LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
-    LOG_FILE = os.environ.get('LOG_FILE', 'app.log')
-    
+    LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+    LOG_FILE = os.environ.get("LOG_FILE", "app.log")
+
     # Rate Limiting Configuration
-    RATELIMIT_STORAGE_URL = os.environ.get('REDIS_URL', 'memory://')
+    RATELIMIT_STORAGE_URL = os.environ.get("REDIS_URL", "memory://")
     RATELIMIT_DEFAULT = "100 per hour"
-    
+
     # Security Configuration
-    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() in ['true', '1', 'yes']
+    SESSION_COOKIE_SECURE = os.environ.get(
+        "SESSION_COOKIE_SECURE", "False"
+    ).lower() in ["true", "1", "yes"]
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    
+    SESSION_COOKIE_SAMESITE = "Lax"
+
     # API Configuration
-    API_VERSION = 'v1'
-    API_TITLE = 'RetailGenie API'
-    API_DESCRIPTION = 'AI-powered retail management system'
-    
+    API_VERSION = "v1"
+    API_TITLE = "RetailGenie API"
+    API_DESCRIPTION = "AI-powered retail management system"
+
     # Business Rules Configuration
     MIN_RATING = 1
     MAX_RATING = 5
     LOW_STOCK_THRESHOLD = 10
     LOW_RATING_THRESHOLD = 2
-    
+
     # AI Configuration
     MAX_SEARCH_RESULTS = 50
     MAX_RECOMMENDATIONS = 15
@@ -79,48 +85,51 @@ class Config:
 
 class DevelopmentConfig(Config):
     """Development configuration"""
+
     DEBUG = True
-    CORS_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000']
+    CORS_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
 
 class ProductionConfig(Config):
     """Production configuration"""
+
     DEBUG = False
     SESSION_COOKIE_SECURE = True
-    
+
     # Override any production-specific settings
-    LOG_LEVEL = 'WARNING'
+    LOG_LEVEL = "WARNING"
     RATELIMIT_DEFAULT = "1000 per hour"
 
 
 class TestingConfig(Config):
     """Testing configuration"""
+
     TESTING = True
     DEBUG = True
-    
+
     # Use in-memory database for testing
     FIREBASE_CREDENTIALS_PATH = None
-    
+
     # Disable email sending in tests
     SENDER_EMAIL = None
-    
+
     # Use faster password hashing for tests
     BCRYPT_LOG_ROUNDS = 4
 
 
 # Configuration dictionary
 config = {
-    'development': DevelopmentConfig,
-    'production': ProductionConfig,
-    'testing': TestingConfig,
-    'default': DevelopmentConfig
+    "development": DevelopmentConfig,
+    "production": ProductionConfig,
+    "testing": TestingConfig,
+    "default": DevelopmentConfig,
 }
 
 
 def get_config():
     """Get configuration based on environment"""
-    env = os.environ.get('FLASK_ENV', 'development')
-    return config.get(env, config['default'])
+    env = os.environ.get("FLASK_ENV", "development")
+    return config.get(env, config["default"])
 
 
 # Environment variables documentation
