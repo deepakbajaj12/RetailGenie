@@ -1,0 +1,1745 @@
+openapi: 3.0.3
+info:
+  title: RetailGenie API
+  description: |
+    **RetailGenie** - Comprehensive retail management API with AI-powered recommendations,
+    inventory management, user authentication, and real-time analytics.
+
+    ## 🚀 Features
+    - 🛍️ **Product Management**: Full CRUD operations for product catalog
+    - 🔐 **Authentication**: Secure user registration and login system
+    - 🤖 **AI Assistant**: Intelligent product recommendations and chat
+    - 📊 **Analytics**: Real-time business insights and dashboards
+    - 💰 **Pricing**: Dynamic pricing optimization and competitor analysis
+    - 📦 **Inventory**: Stock tracking and management
+    - 💬 **Feedback**: Customer reviews and rating system
+    - 🔌 **WebSocket**: Real-time notifications and updates
+    - 🔄 **Background Tasks**: Asynchronous processing with Celery
+
+    ## 🔐 Authentication
+    Most endpoints require authentication via Bearer token:
+    ```
+    Authorization: Bearer <your-jwt-token>
+    ```
+
+    ## 📈 API Versioning
+    This API supports multiple versions:
+    - **v1**: Stable production API (current)
+    - **v2**: Enhanced API with advanced features
+
+    Use version-specific endpoints: `/api/v1/...` or `/api/v2/...`
+
+    ## ⚡ Rate Limiting
+    API requests are limited to:
+    - **1000 requests/hour** for authenticated users
+    - **100 requests/hour** for unauthenticated users
+
+    ## 📄 Pagination
+    List endpoints support pagination with standard parameters:
+    - `page`: Page number (default: 1)
+    - `limit`: Items per page (default: 20, max: 100)
+
+    ## 🚨 Error Handling
+    All endpoints return standardized error responses with appropriate HTTP status codes and detailed error messages.
+
+    ## 🔌 WebSocket Events
+    Real-time events are available via WebSocket connection at `/socket.io`
+
+    ## 📝 Example Usage
+    ```bash
+    # Get all products
+    curl -X GET "https://api.retailgenie.com/v2/products" \
+         -H "Authorization: Bearer YOUR_TOKEN"
+
+    # Create a new product
+    curl -X POST "https://api.retailgenie.com/v2/products" \
+         -H "Authorization: Bearer YOUR_TOKEN" \
+         -H "Content-Type: application/json" \
+         -d '{"name": "New Product", "price": 29.99}'
+    ```
+  version: 2.1.0
+  contact:
+    name: RetailGenie API Support
+    email: support@retailgenie.com
+    url: https://docs.retailgenie.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://retailgenie.com/terms
+
+servers:
+  - url: https://api.retailgenie.com/v2
+    description: Production server (v2) - Latest features
+  - url: https://api.retailgenie.com/v1
+    description: Production server (v1) - Stable
+  - url: https://staging-api.retailgenie.com/v2
+    description: Staging server (v2)
+  - url: https://staging-api.retailgenie.com/v1
+    description: Staging server (v1)
+  - url: http://localhost:5000
+    description: Development server (base)
+  - url: http://localhost:5000/api/v2
+    description: Development server (v2)
+  - url: http://localhost:5000/api/v1
+    description: Development server (v1)
+
+tags:
+  - name: Health
+    description: System health and status endpoints
+  - name: Products
+    description: Product catalog management and search
+  - name: Users
+    description: User account management and profiles
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Orders
+    description: Order processing and management
+  - name: Recommendations
+    description: AI-powered product recommendations
+  - name: Analytics
+    description: Business analytics and insights
+  - name: Feedback
+    description: User feedback and reviews system
+  - name: Admin
+    description: Administrative operations and tools
+  - name: AI Assistant
+    description: AI-powered chat and assistance
+  - name: Inventory
+    description: Stock management and tracking
+  - name: Pricing
+    description: Dynamic pricing and optimization
+  - name: Search
+    description: Advanced search capabilities
+  - name: WebSocket
+    description: Real-time WebSocket connections
+  - name: Background Tasks
+    description: Asynchronous task processing
+
+paths:
+  # Health Check Endpoints
+  /:
+    get:
+      summary: API health check
+      description: Check if the API is running and database is connected
+      tags:
+        - Health
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "RetailGenie API is running!"
+                  status:
+                    type: string
+                    example: "success"
+                  database:
+                    type: string
+                    example: "Firebase Firestore"
+
+  /health:
+    get:
+      summary: Detailed health status
+      description: Get detailed health information including database status
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Detailed health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  # API Version Information
+  /api/v1/info:
+    get:
+      summary: Get API v1 information
+      description: Retrieve version information and available endpoints for API v1
+      tags:
+        - Health
+      responses:
+        '200':
+          description: API v1 information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiVersionInfo'
+
+  /api/v2/info:
+    get:
+      summary: Get API v2 information
+      description: Retrieve version information and available endpoints for API v2
+      tags:
+        - Health
+      responses:
+        '200':
+          description: API v2 information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiVersionInfo'
+
+  # Product Management Endpoints
+  /api/v1/products:
+    get:
+      summary: Get all products (v1)
+      description: Retrieve a paginated list of all products with optional filtering
+      tags:
+        - Products
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/CategoryFilter'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/InStockFilter'
+        - $ref: '#/components/parameters/MinPriceFilter'
+        - $ref: '#/components/parameters/MaxPriceFilter'
+      responses:
+        '200':
+          description: List of products retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create a new product (v1)
+      description: Create a new product in the catalog
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/products/{product_id}:
+    get:
+      summary: Get product by ID (v1)
+      description: Retrieve a specific product by its ID
+      tags:
+        - Products
+      parameters:
+        - $ref: '#/components/parameters/ProductIdParam'
+      responses:
+        '200':
+          description: Product retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update product (v1)
+      description: Update an existing product
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProductIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdateRequest'
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete product (v1)
+      description: Delete a product from the catalog
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProductIdParam'
+      responses:
+        '204':
+          description: Product deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Enhanced V2 Product Endpoints
+  /api/v2/products:
+    get:
+      summary: Get all products (v2)
+      description: Enhanced product listing with advanced filtering, sorting, and analytics
+      tags:
+        - Products
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/CategoryFilter'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/InStockFilter'
+        - $ref: '#/components/parameters/MinPriceFilter'
+        - $ref: '#/components/parameters/MaxPriceFilter'
+        - $ref: '#/components/parameters/SortByParam'
+        - $ref: '#/components/parameters/SortOrderParam'
+        - $ref: '#/components/parameters/IncludeAnalyticsParam'
+      responses:
+        '200':
+          description: Enhanced product list with metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnhancedProductListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create a new product (v2)
+      description: Create a new product with enhanced features and validation
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnhancedProductCreateRequest'
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnhancedProduct'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v2/products/{product_id}:
+    get:
+      summary: Get product by ID (v2)
+      description: Retrieve a specific product with enhanced data and recommendations
+      tags:
+        - Products
+      parameters:
+        - $ref: '#/components/parameters/ProductIdParam'
+        - $ref: '#/components/parameters/IncludeRecommendationsParam'
+        - $ref: '#/components/parameters/IncludeAnalyticsParam'
+      responses:
+        '200':
+          description: Enhanced product data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnhancedProduct'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Search Endpoints
+  /api/v2/search:
+    get:
+      summary: Advanced search
+      description: Perform advanced search across products with AI-powered relevance
+      tags:
+        - Search
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+            example: "wireless headphones"
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/CategoryFilter'
+        - name: filters
+          in: query
+          description: Advanced filters (JSON encoded)
+          schema:
+            type: string
+            example: '{"price_range": [10, 100], "brand": "Apple"}'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Authentication Endpoints
+  /api/auth/register:
+    post:
+      summary: Register new user
+      description: Create a new user account
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/auth/login:
+    post:
+      summary: User login
+      description: Authenticate user and return JWT token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # AI Assistant Endpoints
+  /api/v1/ai/chat:
+    post:
+      summary: AI Chat Assistant (v1)
+      description: Interact with AI assistant for product recommendations and support
+      tags:
+        - AI Assistant
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: AI response generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Recommendations Endpoints
+  /api/v2/recommendations/{product_id}:
+    get:
+      summary: Get product recommendations
+      description: Get AI-powered recommendations based on a specific product
+      tags:
+        - Recommendations
+      parameters:
+        - $ref: '#/components/parameters/ProductIdParam'
+        - name: count
+          in: query
+          description: Number of recommendations to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 5
+        - name: type
+          in: query
+          description: Type of recommendations
+          schema:
+            type: string
+            enum: [similar, complementary, trending, personalized]
+            default: similar
+      responses:
+        '200':
+          description: Recommendations retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationsResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Analytics Endpoints
+  /api/v1/analytics/dashboard:
+    get:
+      summary: Get analytics dashboard (v1)
+      description: Retrieve business analytics and insights
+      tags:
+        - Analytics
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          description: Time period for analytics
+          schema:
+            type: string
+            enum: [day, week, month, quarter, year]
+            default: week
+      responses:
+        '200':
+          description: Analytics data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsDashboard'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Feedback Endpoints
+  /api/feedback/{product_id}:
+    get:
+      summary: Get product feedback
+      description: Retrieve all feedback and reviews for a specific product
+      tags:
+        - Feedback
+      parameters:
+        - $ref: '#/components/parameters/ProductIdParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Product feedback retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/feedback:
+    post:
+      summary: Submit product feedback
+      description: Submit a new review or feedback for a product
+      tags:
+        - Feedback
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackRequest'
+      responses:
+        '201':
+          description: Feedback submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feedback'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Admin Endpoints
+  /api/admin/init-db:
+    post:
+      summary: Initialize database
+      description: Initialize database with sample data (development only)
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Database initialized successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Database initialized successfully"
+                  products_created:
+                    type: integer
+                    example: 3
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # WebSocket Info Endpoint
+  /ws-stats:
+    get:
+      summary: WebSocket statistics
+      description: Get real-time WebSocket connection statistics
+      tags:
+        - WebSocket
+      responses:
+        '200':
+          description: WebSocket statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebSocketStats'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from login endpoint
+
+  parameters:
+    ProductIdParam:
+      name: product_id
+      in: path
+      required: true
+      description: Unique identifier for the product
+      schema:
+        type: string
+        example: "product-123"
+
+    PageParam:
+      name: page
+      in: query
+      description: Page number for pagination
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+        example: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+        example: 20
+
+    CategoryFilter:
+      name: category
+      in: query
+      description: Filter by product category
+      schema:
+        type: string
+        example: "Electronics"
+
+    SearchQuery:
+      name: search
+      in: query
+      description: Search products by name or description
+      schema:
+        type: string
+        example: "wireless"
+
+    InStockFilter:
+      name: in_stock
+      in: query
+      description: Filter by stock availability
+      schema:
+        type: boolean
+        example: true
+
+    MinPriceFilter:
+      name: min_price
+      in: query
+      description: Minimum price filter
+      schema:
+        type: number
+        format: float
+        minimum: 0
+        example: 10.00
+
+    MaxPriceFilter:
+      name: max_price
+      in: query
+      description: Maximum price filter
+      schema:
+        type: number
+        format: float
+        minimum: 0
+        example: 500.00
+
+    SortByParam:
+      name: sort_by
+      in: query
+      description: Field to sort by
+      schema:
+        type: string
+        enum: [name, price, created_at, updated_at, rating]
+        default: created_at
+        example: price
+
+    SortOrderParam:
+      name: sort_order
+      in: query
+      description: Sort order
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+        example: asc
+
+    IncludeRecommendationsParam:
+      name: include_recommendations
+      in: query
+      description: Include product recommendations
+      schema:
+        type: boolean
+        default: false
+        example: true
+
+    IncludeAnalyticsParam:
+      name: include_analytics
+      in: query
+      description: Include analytics data
+      schema:
+        type: boolean
+        default: false
+        example: true
+
+  schemas:
+    # Health and System Schemas
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+        database_status:
+          type: string
+          example: "connected"
+        firebase_project:
+          type: string
+          example: "retailgenie-prod"
+        environment:
+          type: string
+          example: "production"
+
+    ApiVersionInfo:
+      type: object
+      properties:
+        version:
+          type: string
+          example: "1.0.0"
+        description:
+          type: string
+          example: "RetailGenie API Version 1 - Stable Production API"
+        endpoints:
+          type: object
+          additionalProperties:
+            type: string
+        status:
+          type: string
+          example: "active"
+        documentation:
+          type: string
+          example: "/api/v1/docs"
+
+    # Product Schemas
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - price
+      properties:
+        id:
+          type: string
+          description: Unique product identifier
+          example: "product-123"
+        name:
+          type: string
+          description: Product name
+          example: "Wireless Bluetooth Headphones"
+        price:
+          type: number
+          format: float
+          description: Product price in USD
+          minimum: 0
+          example: 79.99
+        category:
+          type: string
+          description: Product category
+          example: "Electronics"
+        description:
+          type: string
+          description: Product description
+          example: "High-quality wireless headphones with noise cancellation"
+        in_stock:
+          type: boolean
+          description: Whether the product is in stock
+          example: true
+        stock_quantity:
+          type: integer
+          description: Current stock quantity
+          minimum: 0
+          example: 50
+        created_at:
+          type: string
+          format: date-time
+          description: Product creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Product last update timestamp
+        version:
+          type: string
+          description: API version that created this response
+          example: "1.0.0"
+
+    EnhancedProduct:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          properties:
+            images:
+              type: array
+              items:
+                type: string
+                format: uri
+                example: "https://cdn.retailgenie.com/products/123/image1.jpg"
+            rating:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 5
+              example: 4.5
+            review_count:
+              type: integer
+              minimum: 0
+              example: 127
+            tags:
+              type: array
+              items:
+                type: string
+              example: ["wireless", "bluetooth", "noise-cancelling"]
+            dimensions:
+              type: object
+              properties:
+                length:
+                  type: number
+                  format: float
+                width:
+                  type: number
+                  format: float
+                height:
+                  type: number
+                  format: float
+                weight:
+                  type: number
+                  format: float
+            manufacturer:
+              type: string
+              example: "TechCorp"
+            warranty_months:
+              type: integer
+              minimum: 0
+              example: 24
+            recommendations:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
+            analytics:
+              $ref: '#/components/schemas/ProductAnalytics'
+
+    ProductCreateRequest:
+      type: object
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: string
+          description: Product name
+          example: "Wireless Bluetooth Headphones"
+        price:
+          type: number
+          format: float
+          description: Product price in USD
+          minimum: 0
+          example: 79.99
+        category:
+          type: string
+          description: Product category
+          example: "Electronics"
+        description:
+          type: string
+          description: Product description
+          example: "High-quality wireless headphones"
+        in_stock:
+          type: boolean
+          description: Whether the product is in stock
+          default: true
+        stock_quantity:
+          type: integer
+          description: Initial stock quantity
+          minimum: 0
+          default: 0
+
+    EnhancedProductCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/ProductCreateRequest'
+        - type: object
+          properties:
+            images:
+              type: array
+              items:
+                type: string
+                format: uri
+            tags:
+              type: array
+              items:
+                type: string
+            dimensions:
+              type: object
+              properties:
+                length:
+                  type: number
+                  format: float
+                width:
+                  type: number
+                  format: float
+                height:
+                  type: number
+                  format: float
+                weight:
+                  type: number
+                  format: float
+            manufacturer:
+              type: string
+            warranty_months:
+              type: integer
+              minimum: 0
+
+    ProductUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Product name
+        price:
+          type: number
+          format: float
+          description: Product price in USD
+          minimum: 0
+        category:
+          type: string
+          description: Product category
+        description:
+          type: string
+          description: Product description
+        in_stock:
+          type: boolean
+          description: Whether the product is in stock
+        stock_quantity:
+          type: integer
+          description: Stock quantity
+          minimum: 0
+
+    ProductListResponse:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        count:
+          type: integer
+          description: Total number of products returned
+          example: 25
+        total:
+          type: integer
+          description: Total number of products matching criteria
+          example: 150
+        page:
+          type: integer
+          description: Current page number
+          example: 1
+        pages:
+          type: integer
+          description: Total number of pages
+          example: 8
+        version:
+          type: string
+          example: "1.0.0"
+
+    EnhancedProductListResponse:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnhancedProduct'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+        filters:
+          $ref: '#/components/schemas/AppliedFilters'
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+
+    # Search Schemas
+    SearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        total_results:
+          type: integer
+          example: 42
+        search_time_ms:
+          type: number
+          format: float
+          example: 23.5
+        suggestions:
+          type: array
+          items:
+            type: string
+          example: ["wireless headphones", "bluetooth headphones"]
+        filters:
+          $ref: '#/components/schemas/SearchFilters'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    SearchResult:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          properties:
+            relevance_score:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              example: 0.95
+            match_type:
+              type: string
+              enum: [exact, partial, semantic, category]
+              example: "semantic"
+
+    SearchFilters:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              count:
+                type: integer
+        price_ranges:
+          type: array
+          items:
+            type: object
+            properties:
+              min:
+                type: number
+              max:
+                type: number
+              count:
+                type: integer
+        brands:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              count:
+                type: integer
+
+    # Authentication Schemas
+    UserRegistrationRequest:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: "user@example.com"
+        password:
+          type: string
+          format: password
+          description: User password (min 8 characters)
+          minLength: 8
+          example: "SecurePass123!"
+        name:
+          type: string
+          description: User full name
+          example: "John Doe"
+        phone:
+          type: string
+          description: User phone number
+          example: "+1-555-123-4567"
+
+    UserLoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: "user@example.com"
+        password:
+          type: string
+          format: password
+          description: User password
+          example: "SecurePass123!"
+
+    AuthResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Login successful"
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+          description: JWT authentication token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        expires_in:
+          type: integer
+          description: Token expiration time in seconds
+          example: 3600
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "user-123"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        name:
+          type: string
+          example: "John Doe"
+        role:
+          type: string
+          enum: [user, admin, moderator]
+          example: "user"
+        created_at:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+          example: true
+
+    # AI Assistant Schemas
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: User message to the AI assistant
+          example: "I'm looking for wireless headphones under $100"
+        context:
+          type: object
+          description: Additional context for the AI
+          properties:
+            user_preferences:
+              type: object
+            conversation_history:
+              type: array
+              items:
+                type: object
+
+    ChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+          description: AI assistant response
+          example: "I found several great wireless headphones under $100..."
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        context:
+          type: object
+          description: Updated context for future conversations
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          example: 0.85
+
+    # Recommendations Schemas
+    RecommendationsResponse:
+      type: object
+      properties:
+        product_id:
+          type: string
+          example: "product-123"
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecommendationItem'
+        algorithm:
+          type: string
+          example: "collaborative_filtering"
+        generated_at:
+          type: string
+          format: date-time
+
+    RecommendationItem:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          properties:
+            score:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              example: 0.92
+            reason:
+              type: string
+              example: "Customers who bought this also bought"
+
+    # Analytics Schemas
+    AnalyticsDashboard:
+      type: object
+      properties:
+        summary:
+          $ref: '#/components/schemas/AnalyticsSummary'
+        sales:
+          $ref: '#/components/schemas/SalesAnalytics'
+        products:
+          $ref: '#/components/schemas/ProductAnalytics'
+        users:
+          $ref: '#/components/schemas/UserAnalytics'
+        period:
+          type: string
+          example: "week"
+        generated_at:
+          type: string
+          format: date-time
+
+    AnalyticsSummary:
+      type: object
+      properties:
+        total_revenue:
+          type: number
+          format: float
+          example: 45678.90
+        total_orders:
+          type: integer
+          example: 234
+        total_customers:
+          type: integer
+          example: 156
+        conversion_rate:
+          type: number
+          format: float
+          example: 0.23
+
+    SalesAnalytics:
+      type: object
+      properties:
+        daily_revenue:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              revenue:
+                type: number
+                format: float
+        top_products:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              name:
+                type: string
+              revenue:
+                type: number
+                format: float
+              units_sold:
+                type: integer
+
+    ProductAnalytics:
+      type: object
+      properties:
+        views:
+          type: integer
+          example: 1247
+        conversions:
+          type: integer
+          example: 23
+        conversion_rate:
+          type: number
+          format: float
+          example: 0.018
+        revenue:
+          type: number
+          format: float
+          example: 1839.77
+
+    UserAnalytics:
+      type: object
+      properties:
+        new_users:
+          type: integer
+          example: 45
+        active_users:
+          type: integer
+          example: 234
+        retention_rate:
+          type: number
+          format: float
+          example: 0.78
+
+    # Feedback Schemas
+    FeedbackRequest:
+      type: object
+      required:
+        - product_id
+        - rating
+        - comment
+        - user_name
+      properties:
+        product_id:
+          type: string
+          description: ID of the product being reviewed
+          example: "product-123"
+        rating:
+          type: integer
+          description: Rating from 1 to 5 stars
+          minimum: 1
+          maximum: 5
+          example: 4
+        comment:
+          type: string
+          description: Review comment
+          example: "Great product, excellent sound quality!"
+        user_name:
+          type: string
+          description: Name of the reviewer
+          example: "John D."
+
+    Feedback:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "feedback-456"
+        product_id:
+          type: string
+          example: "product-123"
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+        comment:
+          type: string
+          example: "Great product, excellent sound quality!"
+        user_name:
+          type: string
+          example: "John D."
+        created_at:
+          type: string
+          format: date-time
+        verified_purchase:
+          type: boolean
+          example: true
+
+    FeedbackListResponse:
+      type: object
+      properties:
+        product_id:
+          type: string
+          example: "product-123"
+        feedback:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feedback'
+        average_rating:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 5
+          example: 4.3
+        total_reviews:
+          type: integer
+          example: 87
+        rating_distribution:
+          type: object
+          properties:
+            "5":
+              type: integer
+              example: 45
+            "4":
+              type: integer
+              example: 23
+            "3":
+              type: integer
+              example: 12
+            "2":
+              type: integer
+              example: 5
+            "1":
+              type: integer
+              example: 2
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    # WebSocket Schemas
+    WebSocketStats:
+      type: object
+      properties:
+        active_connections:
+          type: integer
+          example: 42
+        total_connections:
+          type: integer
+          example: 1337
+        rooms:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              connections:
+                type: integer
+        events_sent:
+          type: integer
+          example: 5678
+        uptime:
+          type: string
+          example: "2d 4h 23m"
+
+    # Utility Schemas
+    PaginationInfo:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 150
+        pages:
+          type: integer
+          example: 8
+        has_next:
+          type: boolean
+          example: true
+        has_prev:
+          type: boolean
+          example: false
+
+    AppliedFilters:
+      type: object
+      properties:
+        category:
+          type: string
+        price_range:
+          type: object
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+        in_stock:
+          type: boolean
+        search_query:
+          type: string
+
+    ResponseMetadata:
+      type: object
+      properties:
+        version:
+          type: string
+          example: "2.1.0"
+        timestamp:
+          type: string
+          format: date-time
+        execution_time_ms:
+          type: number
+          format: float
+          example: 45.2
+        rate_limit:
+          type: object
+          properties:
+            remaining:
+              type: integer
+              example: 995
+            reset_time:
+              type: string
+              format: date-time
+
+    # Error Schemas
+    Error:
+      type: object
+      required:
+        - error
+        - status_code
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Resource not found"
+        status_code:
+          type: integer
+          description: HTTP status code
+          example: 404
+        timestamp:
+          type: string
+          format: date-time
+          example: "2023-01-15T10:30:00Z"
+        path:
+          type: string
+          description: API endpoint that generated the error
+          example: "/api/products/invalid-id"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+        request_id:
+          type: string
+          description: Unique request identifier for debugging
+          example: "req-123-abc"
+
+  responses:
+    BadRequest:
+      description: Bad request - Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Invalid input data"
+            status_code: 400
+            timestamp: "2023-01-15T10:30:00Z"
+            path: "/api/products"
+
+    Unauthorized:
+      description: Unauthorized - Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Authentication required"
+            status_code: 401
+            timestamp: "2023-01-15T10:30:00Z"
+
+    Forbidden:
+      description: Forbidden - Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Insufficient permissions"
+            status_code: 403
+            timestamp: "2023-01-15T10:30:00Z"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Resource not found"
+            status_code: 404
+            timestamp: "2023-01-15T10:30:00Z"
+            path: "/api/products/invalid-id"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Internal server error"
+            status_code: 500
+            timestamp: "2023-01-15T10:30:00Z"
+
+# Example webhook configurations for real-time updates
+webhooks:
+  productUpdated:
+    post:
+      summary: Product updated webhook
+      description: Triggered when a product is updated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  example: "product.updated"
+                data:
+                  $ref: '#/components/schemas/Product'
+                timestamp:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Webhook received successfully
+
+  orderCreated:
+    post:
+      summary: Order created webhook
+      description: Triggered when a new order is created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  example: "order.created"
+                data:
+                  type: object
+                  properties:
+                    order_id:
+                      type: string
+                    user_id:
+                      type: string
+                    total:
+                      type: number
+                    items:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Product'
+                timestamp:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Webhook received successfully

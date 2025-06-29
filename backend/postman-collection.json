@@ -1,0 +1,1034 @@
+{
+  "info": {
+    "name": "RetailGenie API Collection",
+    "description": "Comprehensive API collection for RetailGenie - A complete retail management system with AI-powered features.\n\n## 🚀 Features Covered:\n- Product Management (CRUD operations)\n- User Authentication (Register/Login)\n- AI Assistant Chat\n- Product Recommendations\n- Analytics Dashboard\n- Feedback System\n- Advanced Search\n- WebSocket Statistics\n- Admin Operations\n\n## 🔐 Authentication:\nMost requests require a Bearer token. Use the Login request to get a token, then set it in the collection variables.\n\n## 📝 Usage:\n1. Run the 'Register User' or 'Login User' request\n2. Copy the token from the response\n3. Set the 'authToken' collection variable\n4. All authenticated requests will automatically use this token\n\n## 🌐 Environments:\nConfigure different environments for:\n- Development: http://localhost:5000\n- Staging: https://staging-api.retailgenie.com\n- Production: https://api.retailgenie.com",
+    "version": "2.1.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string",
+      "description": "Base URL for the API"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string",
+      "description": "JWT authentication token"
+    },
+    {
+      "key": "testProductId",
+      "value": "",
+      "type": "string",
+      "description": "Product ID for testing"
+    },
+    {
+      "key": "testUserId",
+      "value": "",
+      "type": "string",
+      "description": "User ID for testing"
+    }
+  ],
+  "item": [
+    {
+      "name": "🏥 Health & System",
+      "item": [
+        {
+          "name": "API Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Basic health check to verify API is running"
+          },
+          "response": []
+        },
+        {
+          "name": "Detailed Health Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Detailed health information including database status"
+          },
+          "response": []
+        },
+        {
+          "name": "API v1 Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "info"]
+            },
+            "description": "Get API v1 version information and endpoints"
+          },
+          "response": []
+        },
+        {
+          "name": "API v2 Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "info"]
+            },
+            "description": "Get API v2 version information and endpoints"
+          },
+          "response": []
+        }
+      ],
+      "description": "System health and API information endpoints"
+    },
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.token) {",
+                  "        pm.collectionVariables.set('authToken', response.token);",
+                  "        console.log('Token set:', response.token);",
+                  "    }",
+                  "    if (response.user && response.user.id) {",
+                  "        pm.collectionVariables.set('testUserId', response.user.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@retailgenie.com\",\n  \"password\": \"SecurePass123!\",\n  \"name\": \"Test User\",\n  \"phone\": \"+1-555-123-4567\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user account"
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.token) {",
+                  "        pm.collectionVariables.set('authToken', response.token);",
+                  "        console.log('Token set:', response.token);",
+                  "    }",
+                  "    if (response.user && response.user.id) {",
+                  "        pm.collectionVariables.set('testUserId', response.user.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@retailgenie.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login and get authentication token"
+          },
+          "response": []
+        }
+      ],
+      "description": "User authentication endpoints"
+    },
+    {
+      "name": "🛍️ Products (V1)",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products?page=1&limit=10&category=Electronics&search=wireless&in_stock=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "category",
+                  "value": "Electronics",
+                  "description": "Filter by category"
+                },
+                {
+                  "key": "search",
+                  "value": "wireless",
+                  "description": "Search term"
+                },
+                {
+                  "key": "in_stock",
+                  "value": "true",
+                  "description": "Filter in-stock items"
+                },
+                {
+                  "key": "min_price",
+                  "value": "10",
+                  "description": "Minimum price",
+                  "disabled": true
+                },
+                {
+                  "key": "max_price",
+                  "value": "500",
+                  "description": "Maximum price",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get paginated list of products with optional filtering"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{testProductId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{testProductId}}"]
+            },
+            "description": "Get specific product by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.id) {",
+                  "        pm.collectionVariables.set('testProductId', response.id);",
+                  "        console.log('Product ID set:', response.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Wireless Bluetooth Headphones\",\n  \"price\": 79.99,\n  \"category\": \"Electronics\",\n  \"description\": \"High-quality wireless headphones with noise cancellation\",\n  \"in_stock\": true,\n  \"stock_quantity\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products"]
+            },
+            "description": "Create a new product"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium Wireless Bluetooth Headphones\",\n  \"price\": 89.99,\n  \"description\": \"Premium high-quality wireless headphones with advanced noise cancellation\",\n  \"stock_quantity\": 45\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{testProductId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{testProductId}}"]
+            },
+            "description": "Update existing product"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{testProductId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{testProductId}}"]
+            },
+            "description": "Delete product by ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Product management endpoints (API v1)"
+    },
+    {
+      "name": "🛍️ Products (V2 Enhanced)",
+      "item": [
+        {
+          "name": "Get Enhanced Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/products?page=1&limit=10&sort_by=price&sort_order=asc&include_analytics=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "products"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "price",
+                  "description": "Sort by: name, price, created_at, rating"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "asc",
+                  "description": "Sort order: asc, desc"
+                },
+                {
+                  "key": "include_analytics",
+                  "value": "true",
+                  "description": "Include analytics data"
+                }
+              ]
+            },
+            "description": "Get enhanced product list with advanced features"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Enhanced Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/products/{{testProductId}}?include_recommendations=true&include_analytics=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "products", "{{testProductId}}"],
+              "query": [
+                {
+                  "key": "include_recommendations",
+                  "value": "true",
+                  "description": "Include product recommendations"
+                },
+                {
+                  "key": "include_analytics",
+                  "value": "true",
+                  "description": "Include analytics data"
+                }
+              ]
+            },
+            "description": "Get enhanced product with recommendations and analytics"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Enhanced Product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Smart Fitness Watch\",\n  \"price\": 199.99,\n  \"category\": \"Electronics\",\n  \"description\": \"Advanced fitness tracking with heart rate monitoring\",\n  \"in_stock\": true,\n  \"stock_quantity\": 25,\n  \"images\": [\n    \"https://cdn.retailgenie.com/products/smartwatch1.jpg\",\n    \"https://cdn.retailgenie.com/products/smartwatch2.jpg\"\n  ],\n  \"tags\": [\"fitness\", \"smartwatch\", \"health\", \"sports\"],\n  \"dimensions\": {\n    \"length\": 4.5,\n    \"width\": 3.8,\n    \"height\": 1.2,\n    \"weight\": 0.05\n  },\n  \"manufacturer\": \"TechCorp\",\n  \"warranty_months\": 24\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "products"]
+            },
+            "description": "Create enhanced product with additional metadata"
+          },
+          "response": []
+        }
+      ],
+      "description": "Enhanced product management endpoints (API v2)"
+    },
+    {
+      "name": "🔍 Search & Discovery",
+      "item": [
+        {
+          "name": "Advanced Search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/search?q=wireless headphones&page=1&limit=10&category=Electronics&filters={\"price_range\":[20,200],\"brand\":\"TechCorp\"}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "wireless headphones",
+                  "description": "Search query"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "category",
+                  "value": "Electronics"
+                },
+                {
+                  "key": "filters",
+                  "value": "{\"price_range\":[20,200],\"brand\":\"TechCorp\"}",
+                  "description": "Advanced filters (JSON)"
+                }
+              ]
+            },
+            "description": "Perform advanced AI-powered search"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/recommendations/{{testProductId}}?count=5&type=similar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "recommendations", "{{testProductId}}"],
+              "query": [
+                {
+                  "key": "count",
+                  "value": "5",
+                  "description": "Number of recommendations"
+                },
+                {
+                  "key": "type",
+                  "value": "similar",
+                  "description": "Type: similar, complementary, trending, personalized"
+                }
+              ]
+            },
+            "description": "Get AI-powered product recommendations"
+          },
+          "response": []
+        }
+      ],
+      "description": "Advanced search and recommendation features"
+    },
+    {
+      "name": "🤖 AI Assistant",
+      "item": [
+        {
+          "name": "Chat with AI Assistant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"I'm looking for wireless headphones under $100 with good battery life\",\n  \"context\": {\n    \"user_preferences\": {\n      \"budget\": 100,\n      \"category\": \"Electronics\",\n      \"features\": [\"wireless\", \"long battery\"]\n    },\n    \"conversation_history\": []\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/chat",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "chat"]
+            },
+            "description": "Chat with AI assistant for product recommendations"
+          },
+          "response": []
+        }
+      ],
+      "description": "AI-powered chat assistant"
+    },
+    {
+      "name": "📊 Analytics",
+      "item": [
+        {
+          "name": "Get Analytics Dashboard",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/analytics/dashboard?period=week",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "analytics", "dashboard"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "week",
+                  "description": "Period: day, week, month, quarter, year"
+                }
+              ]
+            },
+            "description": "Get business analytics dashboard"
+          },
+          "response": []
+        }
+      ],
+      "description": "Business analytics and insights"
+    },
+    {
+      "name": "💬 Feedback & Reviews",
+      "item": [
+        {
+          "name": "Get Product Feedback",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/feedback/{{testProductId}}?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "feedback", "{{testProductId}}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get all feedback for a specific product"
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Product Feedback",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{testProductId}}\",\n  \"rating\": 4,\n  \"comment\": \"Great product! Excellent sound quality and comfortable to wear for long periods.\",\n  \"user_name\": \"John D.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/feedback",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "feedback"]
+            },
+            "description": "Submit feedback and rating for a product"
+          },
+          "response": []
+        }
+      ],
+      "description": "Product feedback and review system"
+    },
+    {
+      "name": "🔌 WebSocket & Real-time",
+      "item": [
+        {
+          "name": "Get WebSocket Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ws-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["ws-stats"]
+            },
+            "description": "Get real-time WebSocket connection statistics"
+          },
+          "response": []
+        }
+      ],
+      "description": "WebSocket and real-time features"
+    },
+    {
+      "name": "🔧 Admin Operations",
+      "item": [
+        {
+          "name": "Initialize Database",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/init-db",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "init-db"]
+            },
+            "description": "Initialize database with sample data (development only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Administrative operations and tools"
+    },
+    {
+      "name": "🧪 Test Scenarios",
+      "item": [
+        {
+          "name": "Complete Product Workflow",
+          "item": [
+            {
+              "name": "1. Create Test Product",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Product created successfully', function () {",
+                      "    pm.response.to.have.status(201);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response).to.have.property('id');",
+                      "    pm.collectionVariables.set('testProductId', response.id);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{authToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Test Product - Wireless Mouse\",\n  \"price\": 29.99,\n  \"category\": \"Electronics\",\n  \"description\": \"Ergonomic wireless mouse with precision tracking\",\n  \"in_stock\": true,\n  \"stock_quantity\": 100\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/products",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "products"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "2. Get Created Product",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Product retrieved successfully', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response.name).to.include('Test Product');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/products/{{testProductId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "products", "{{testProductId}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "3. Submit Product Review",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Feedback submitted successfully', function () {",
+                      "    pm.response.to.have.status(201);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response.message).to.include('successfully');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{authToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"product_id\": \"{{testProductId}}\",\n  \"rating\": 5,\n  \"comment\": \"Excellent product! Works perfectly and great value for money.\",\n  \"user_name\": \"Test User\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/feedback",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "feedback"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "4. Get Product Reviews",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Reviews retrieved successfully', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response).to.have.property('feedback');",
+                      "    pm.expect(response).to.have.property('average_rating');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/feedback/{{testProductId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "feedback", "{{testProductId}}"]
+                }
+              },
+              "response": []
+            }
+          ],
+          "description": "Complete workflow testing product CRUD and reviews"
+        },
+        {
+          "name": "Authentication Flow Test",
+          "item": [
+            {
+              "name": "1. Register New Test User",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Generate random email for testing",
+                      "const timestamp = Date.now();",
+                      "const testEmail = `test-${timestamp}@retailgenie.com`;",
+                      "pm.collectionVariables.set('testEmail', testEmail);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('User registered successfully', function () {",
+                      "    pm.response.to.have.status(201);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response).to.have.property('token');",
+                      "    pm.expect(response).to.have.property('user');",
+                      "    pm.collectionVariables.set('authToken', response.token);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"TestPass123!\",\n  \"name\": \"Test User {{$randomInt}}\",\n  \"phone\": \"+1-555-{{$randomInt}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/register",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "auth", "register"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "2. Login with Test User",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('User logged in successfully', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response).to.have.property('token');",
+                      "    pm.expect(response.message).to.include('successful');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"TestPass123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "auth", "login"]
+                }
+              },
+              "response": []
+            }
+          ],
+          "description": "Test complete authentication flow"
+        }
+      ],
+      "description": "Comprehensive test scenarios and workflows",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "test-prerequest",
+            "exec": [
+              "// Set up test environment",
+              "console.log('Running test scenario...');"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "collection-prerequest",
+        "exec": [
+          "// Collection-level pre-request script",
+          "console.log('RetailGenie API Request:', pm.request.url.toString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "collection-test",
+        "exec": [
+          "// Collection-level test script",
+          "pm.test('Response time is acceptable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('Response has correct content type', function () {",
+          "    if (pm.response.code !== 204) {",
+          "        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "    }",
+          "});"
+        ]
+      }
+    }
+  ]
+}

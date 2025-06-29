@@ -1,0 +1,419 @@
+name: RetailGenie CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**', 'fix/**', 'docs/**' ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: 3.12
+
+jobs:
+  # Validate commit messages and branch naming
+  validate:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Validate commit messages
+      run: |
+        # Check if commit messages follow conventional format
+        git log --format="%s" origin/${{ github.base_ref }}..${{ github.sha }} | while read -r line; do
+          if ! echo "$line" | grep -qE '^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+'; then
+            echo "❌ Invalid commit message: $line"
+            echo "Expected format: type(scope): description"
+            echo "Types: feat, fix, docs, style, refactor, test, chore"
+            exit 1
+          else
+            echo "✅ Valid commit message: $line"
+          fi
+        done
+
+    - name: Validate branch naming
+      run: |
+        branch_name="${{ github.head_ref }}"
+        if [[ ! "$branch_name" =~ ^(feature|fix|docs|style|refactor|test|chore)\/[a-z0-9\-]+ ]]; then
+          echo "❌ Invalid branch name: $branch_name"
+          echo "Expected format: type/description (e.g., feature/product-recommendations)"
+          exit 1
+        else
+          echo "✅ Valid branch name: $branch_name"
+        fi
+
+  # Code quality checks with pre-commit hooks
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install pre-commit
+        pip install -r requirements.txt
+
+    - name: Cache pre-commit hooks
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pre-commit
+        key: pre-commit-${{ hashFiles('backend/.pre-commit-config.yaml') }}
+        restore-keys: |
+          pre-commit-
+
+    - name: Run pre-commit hooks
+      working-directory: ./backend
+      run: |
+        pre-commit run --all-files --show-diff-on-failure
+
+  test:
+    runs-on: ubuntu-latest
+    needs: code-quality
+    strategy:
+      matrix:
+        python-version: [3.11, 3.12]
+
+    services:
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest-cov pytest-xdist
+
+    - name: Run unit tests
+      working-directory: ./backend
+      env:
+        REDIS_URL: redis://localhost:6379
+        TESTING: true
+      run: |
+        python -m pytest tests/test_basic.py tests/test_app.py -v \
+          --cov=. \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-report=term-missing \
+          --cov-fail-under=70 \
+          -n auto
+
+    - name: Run integration tests
+      working-directory: ./backend
+      env:
+        REDIS_URL: redis://localhost:6379
+        TESTING: true
+      run: |
+        python -m pytest tests/test_integration.py tests/test_api_versioning.py -v \
+          --cov=. --cov-append \
+          --cov-report=xml \
+          --cov-report=term-missing
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./backend/coverage.xml
+        flags: unittests
+        name: codecov-${{ matrix.python-version }}
+        fail_ci_if_error: false
+
+    - name: Store coverage results
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-${{ matrix.python-version }}
+        path: backend/htmlcov/
+
+  # Security scanning
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: code-quality
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install security tools
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install safety bandit semgrep
+        pip install -r requirements.txt
+
+    - name: Run safety check for vulnerabilities
+      working-directory: ./backend
+      run: |
+        safety check --json --output safety-report.json || true
+        if [ -f safety-report.json ]; then
+          echo "🔍 Security vulnerabilities found:"
+          cat safety-report.json
+        fi
+
+    - name: Run bandit security linter
+      working-directory: ./backend
+      run: |
+        bandit -r . -f json -o bandit-report.json || true
+        if [ -f bandit-report.json ]; then
+          echo "🔒 Bandit security scan results:"
+          cat bandit-report.json
+        fi
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          backend/safety-report.json
+          backend/bandit-report.json
+
+  # Performance and load testing
+  performance-tests:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'pull_request' && (contains(github.event.pull_request.labels.*.name, 'performance') || github.base_ref == 'main')
+
+    services:
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install locust
+
+    - name: Run performance tests
+      working-directory: ./backend
+      env:
+        REDIS_URL: redis://localhost:6379
+        TESTING: true
+      run: |
+        # Start the app in background
+        python app.py &
+        APP_PID=$!
+
+        # Wait for app to start
+        sleep 10
+
+        # Run performance tests
+        python test_performance.py || true
+
+        # Stop the app
+        kill $APP_PID
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: test
+
+    services:
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest-cov
+
+    - name: Run API integration tests
+      working-directory: ./backend
+      env:
+        REDIS_URL: redis://localhost:6379
+        TESTING: true
+      run: |
+        python -m pytest tests/test_firebase_utils.py -v \
+          --cov=utils \
+          --cov-report=xml
+      run: |
+        python -m pytest tests/integration/test_simple_integration.py -v --cov=. --cov-report=xml
+
+  load-testing:
+    runs-on: ubuntu-latest
+    needs: test
+
+    services:
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.12
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install locust
+
+    - name: Start application in background
+      working-directory: ./backend
+      env:
+        REDIS_URL: redis://localhost:6379
+      run: |
+        python app.py &
+        sleep 10
+
+    - name: Run load tests
+      working-directory: ./backend
+      run: |
+        locust -f tests/load/locustfile_simple.py --headless -u 5 -r 1 -t 30s --host=http://localhost:5000 --html=load_test_report.html
+
+    - name: Upload load test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: load-test-report
+        path: ./backend/load_test_report.html
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test, integration-tests, load-testing, security-scan]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    services:
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.12
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest-cov
+
+    - name: Run deployment tests
+      working-directory: ./backend
+      env:
+        REDIS_URL: redis://localhost:6379
+      run: |
+        python -m pytest tests/deployment/test_simple_deployment.py -v
+
+    - name: Build Docker image
+      working-directory: ./backend
+      run: |
+        docker build -t retailgenie:${{ github.sha }} .
+
+    - name: Run smoke tests
+      working-directory: ./backend
+      env:
+        REDIS_URL: redis://localhost:6379
+      run: |
+        python app.py &
+        sleep 10
+        curl -f http://localhost:5000/health || exit 1
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [test, integration-tests, load-testing, security-scan, deploy]
+    if: always()
+
+    steps:
+    - name: Notify build status
+      run: |
+        if [[ "${{ needs.test.result }}" == "success" && "${{ needs.integration-tests.result }}" == "success" && "${{ needs.load-testing.result }}" == "success" && "${{ needs.security-scan.result }}" == "success" ]]; then
+          echo "✅ All checks passed successfully!"
+        else
+          echo "❌ Some checks failed. Please review the logs."
+          exit 1
+        fi

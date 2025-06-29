@@ -1,0 +1,14 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.git/
+README.md
+tests/
+.pytest_cache/
+*.log
+htmlcov/
+.coverage
+node_modules/
+*.tmp
+*.temp

@@ -1,0 +1,10 @@
+runtime: python39
+
+env_variables:
+  FLASK_ENV: production
+  SECRET_KEY: your-secret-key-change-in-production
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 10
+  target_cpu_utilization: 0.6

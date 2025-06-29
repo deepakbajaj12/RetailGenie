@@ -1,0 +1,15 @@
+{
+  "name": "RetailGenie Test Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "enabled": true
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "enabled": true
+    }
+  ]
+}
