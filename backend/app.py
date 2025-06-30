@@ -8,6 +8,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from utils.firebase_utils import FirebaseUtils
+from routes.predict_demand import predict_demand_bp
 
 # Load environment variables
 load_dotenv()
@@ -36,6 +37,7 @@ def get_json_data():
 
 def create_app():
     app = Flask(__name__)
+    app.register_blueprint(predict_demand_bp)
 
     # Initialize Firebase
     firebase = FirebaseUtils()
