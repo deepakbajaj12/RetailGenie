@@ -64,7 +64,7 @@ export default function AnalyticsPage() {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Sales Trend */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 min-w-0">
           <h3 className="text-lg font-semibold mb-4">Sales Trend</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -80,7 +80,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Order Status */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 min-w-0">
           <h3 className="text-lg font-semibold mb-4">Order Status Distribution</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -90,7 +90,7 @@ export default function AnalyticsPage() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }: { name?: string; percent?: number }) => `${name || ''} ${((percent || 0) * 100).toFixed(0)}%`}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
@@ -106,7 +106,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Top Products */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2 min-w-0">
           <h3 className="text-lg font-semibold mb-4">Top Selling Products</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">

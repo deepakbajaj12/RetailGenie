@@ -1,9 +1,14 @@
+'use client'
+
 import Link from 'next/link'
-import { Store, Bell, Moon, User } from 'lucide-react'
+import { Store, Bell, Moon, Sun, User } from 'lucide-react'
+import { useTheme } from '@/components/ThemeProvider'
 
 export function NavBar() {
+  const { theme, toggleTheme } = useTheme()
+
   return (
-    <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
+    <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg dark:from-blue-900 dark:to-indigo-950 transition-colors duration-200">
       <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
         <Link href="/" className="font-bold text-xl flex items-center gap-2 hover:text-blue-100 transition-colors">
           <Store className="h-6 w-6" />
@@ -26,8 +31,12 @@ export function NavBar() {
               <Bell className="h-5 w-5" />
               <span className="absolute top-2 right-2 h-2 w-2 bg-red-400 rounded-full border border-blue-600"></span>
             </button>
-            <button className="p-2 hover:bg-white/10 rounded-full transition-colors" title="Toggle Theme">
-              <Moon className="h-5 w-5" />
+            <button 
+              onClick={toggleTheme}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors" 
+              title="Toggle Theme"
+            >
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
             <div className="h-8 w-8 bg-blue-800 rounded-full flex items-center justify-center font-bold border border-blue-400 cursor-pointer hover:bg-blue-900 transition-colors" title="User Profile">
               <User className="h-4 w-4" />
