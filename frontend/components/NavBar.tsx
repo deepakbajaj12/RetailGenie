@@ -14,6 +14,7 @@ export function NavBar() {
           <Link href="/forecast" className="hover:text-blue-200 transition-colors">Forecast</Link>
           <Link href="/assistant" className="hover:text-blue-200 transition-colors">Assistant</Link>
           <Link href="/products" className="hover:text-blue-200 transition-colors">Products</Link>
+          <Link href="/orders" className="hover:text-blue-200 transition-colors">Orders</Link>
           <Link href="/ai" className="hover:text-blue-200 transition-colors">AI Tools</Link>
         </nav>
       </div>

@@ -188,6 +188,48 @@ def create_app():
             logger.error(f"Error deleting product {product_id}: {str(e)}")
             return jsonify({"error": "Failed to delete product"}), 500
 
+    # Order endpoints
+    @app.route("/api/orders", methods=["GET"])
+    def get_orders():
+        try:
+            orders = firebase.get_documents("orders")
+            # Sort by date desc
+            orders.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+            return jsonify({"orders": orders, "count": len(orders)})
+        except Exception as e:
+            logger.error(f"Error getting orders: {str(e)}")
+            return jsonify({"error": "Failed to retrieve orders"}), 500
+
+    @app.route("/api/orders", methods=["POST"])
+    def create_order():
+        try:
+            data, error_response, status_code = get_json_data()
+            if error_response:
+                return error_response, status_code
+
+            required_fields = ["customer_name", "total_amount", "items"]
+            for field in required_fields:
+                if field not in data:
+                    return jsonify({"error": f"Missing required field: {field}"}), 400
+
+            order_data = {
+                "customer_name": data.get("customer_name"),
+                "total_amount": float(data.get("total_amount")),
+                "status": data.get("status", "Pending"),
+                "items": data.get("items"), # List of {product_id, quantity, price}
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+
+            order_id = firebase.create_document("orders", order_data)
+            order_data["id"] = order_id
+
+            logger.info(f"Created order: {order_id}")
+            return jsonify(order_data), 201
+        except Exception as e:
+            logger.error(f"Error creating order: {str(e)}")
+            return jsonify({"error": "Failed to create order"}), 500
+
     # Authentication endpoints
     @app.route("/api/auth/register", methods=["POST"])
     def register():
