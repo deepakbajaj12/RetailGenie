@@ -1,0 +1,20 @@
+[
+  {
+    "id": "p1",
+    "name": "Organic Coffee Beans",
+    "category": "Food",
+    "description": "Premium organic medium roast with smooth caramel notes."
+  },
+  {
+    "id": "p2",
+    "name": "Smart Fitness Watch",
+    "category": "Wearables",
+    "description": "Tracks heart rate, sleep, and GPS with water resistance."
+  },
+  {
+    "id": "p3",
+    "name": "Wireless Noise-Canceling Headphones",
+    "category": "Electronics",
+    "description": "Over-ear design with active noise cancellation and 30h battery."
+  }
+]

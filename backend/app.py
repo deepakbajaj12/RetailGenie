@@ -9,6 +9,8 @@ from flask_cors import CORS
 
 from utils.firebase_utils import FirebaseUtils
 from routes.predict_demand import predict_demand_bp
+from routes.ai import ai_bp
+from routes.analytics import analytics_bp
 
 # Load environment variables
 load_dotenv()
@@ -38,6 +40,8 @@ def get_json_data():
 def create_app():
     app = Flask(__name__)
     app.register_blueprint(predict_demand_bp)
+    app.register_blueprint(ai_bp)
+    app.register_blueprint(analytics_bp)
 
     # Initialize Firebase
     firebase = FirebaseUtils()
@@ -111,6 +115,7 @@ def create_app():
                 "price": float(data.get("price")),
                 "category": data.get("category", "Uncategorized"),
                 "description": data.get("description", ""),
+                "image_url": data.get("image_url", ""),
                 "in_stock": data.get("in_stock", True),
                 "created_at": datetime.now(timezone.utc).isoformat(),
                 "updated_at": datetime.now(timezone.utc).isoformat(),
@@ -144,7 +149,7 @@ def create_app():
             update_data = {"updated_at": datetime.now(timezone.utc).isoformat()}
 
             # Update only provided fields
-            for field in ["name", "price", "category", "description", "in_stock"]:
+            for field in ["name", "price", "category", "description", "image_url", "in_stock"]:
                 if field in data:
                     if field == "price":
                         update_data[field] = float(data[field])
@@ -420,4 +425,5 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(host="0.0.0.0", port=3000)
+    # Serve on 5000 to match Docker/README and frontend default
+    app.run(host="0.0.0.0", port=5000)
