@@ -59,7 +59,7 @@ pyparsing==3.2.3
 pytest==8.4.1
 pytest-cov==6.2.1
 pytest-flask==1.3.0
-python-dotenv==1.1.1
+python-dotenv==1.2.1
 redis==6.2.0
 requests==2.32.4
 rich==13.9.4
