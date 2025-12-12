@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { getOrders, createOrder, updateOrder, getProducts, type Order, type Product } from '@/lib/api'
-import { Search, Plus, Filter, ShoppingBag, Clock, CheckCircle2, XCircle, Truck, Package, ChevronDown, ChevronUp, Loader2, Trash, Download, Printer } from 'lucide-react'
+import { Search, Plus, Filter, ShoppingBag, Clock, CheckCircle2, XCircle, Truck, Package, ChevronDown, ChevronUp, Loader2, Trash, Download, Printer, FileText } from 'lucide-react'
+import Link from 'next/link'
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -217,15 +218,19 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Orders</h1>
-          <p className="text-slate-600 mt-1">Manage customer orders and track status.</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Orders</h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">Manage customer orders and track status.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Link href="/orders/purchase" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
+            <FileText className="h-4 w-4 mr-2" />
+            Purchase Orders
+          </Link>
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors shadow-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors shadow-sm font-medium"
           >
             <Download className="h-4 w-4" />
             Export

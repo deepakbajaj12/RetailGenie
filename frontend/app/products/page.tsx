@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { getProducts, createProduct, updateProduct, deleteProduct, type Product } from '@/lib/api'
-import { Search, Plus, Filter, Edit, Trash, X, Save, Loader2, Package, Tag, DollarSign, FileImage, Download, ArrowUpDown, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Search, Plus, Filter, Edit, Trash, X, Save, Loader2, Package, Tag, DollarSign, FileImage, Download, ArrowUpDown, CheckCircle2, AlertCircle, ClipboardList, Truck } from 'lucide-react'
+import Link from 'next/link'
 
 type ProductFormData = {
   name: string
@@ -177,10 +178,22 @@ export default function ProductsPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Product Catalog</h1>
-          <p className="text-slate-600 mt-1">Manage your inventory, prices, and product details.</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Product Catalog</h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">Manage your inventory, prices, and product details.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Link href="/products/audit" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
+            <ClipboardList className="h-4 w-4 mr-2" />
+            Audit Logs
+          </Link>
+          <Link href="/products/discounts" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
+            <Tag className="h-4 w-4 mr-2" />
+            Discounts
+          </Link>
+          <Link href="/suppliers" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
+            <Truck className="h-4 w-4 mr-2" />
+            Suppliers
+          </Link>
           {selectedProducts.size > 0 && (
             <button
               onClick={handleBulkDelete}

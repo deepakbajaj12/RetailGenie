@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { NavBar } from '@/components/NavBar'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { AuthProvider } from '@/context/AuthContext'
 
 export const metadata: Metadata = {
   title: 'RetailGenie',
@@ -12,10 +13,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200">
-        <ThemeProvider>
-          <NavBar />
-          <main className="mx-auto max-w-7xl p-6">{children}</main>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <NavBar />
+            <main className="mx-auto max-w-7xl p-6">{children}</main>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   )

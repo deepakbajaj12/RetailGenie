@@ -1,11 +1,18 @@
 'use client'
 
 import Link from 'next/link'
-import { Store, Bell, Moon, Sun, User } from 'lucide-react'
+import { Store, Bell, Moon, Sun, User, LogOut } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
+import { useAuth } from '@/context/AuthContext'
+import { usePathname } from 'next/navigation'
 
 export function NavBar() {
   const { theme, toggleTheme } = useTheme()
+  const { user, logout } = useAuth()
+  const pathname = usePathname()
+
+  // Don't show navbar on login/register pages
+  if (['/login', '/register'].includes(pathname)) return null
 
   return (
     <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg dark:from-blue-900 dark:to-indigo-950 transition-colors duration-200">
@@ -23,6 +30,7 @@ export function NavBar() {
             <Link href="/orders" className="hover:text-blue-200 transition-colors">Orders</Link>
             <Link href="/customers" className="hover:text-blue-200 transition-colors">Customers</Link>
             <Link href="/analytics" className="hover:text-blue-200 transition-colors">Analytics</Link>
+            <Link href="/tools" className="hover:text-blue-200 transition-colors">Tools</Link>
             <Link href="/settings" className="hover:text-blue-200 transition-colors">Settings</Link>
             <Link href="/ai" className="hover:text-blue-200 transition-colors">AI Tools</Link>
           </nav>
@@ -38,9 +46,23 @@ export function NavBar() {
             >
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
-            <div className="h-8 w-8 bg-blue-800 rounded-full flex items-center justify-center font-bold border border-blue-400 cursor-pointer hover:bg-blue-900 transition-colors" title="User Profile">
-              <User className="h-4 w-4" />
-            </div>
+            
+            {user ? (
+              <div className="flex items-center gap-2">
+                <Link href="/profile">
+                  <div className="h-8 w-8 bg-blue-800 rounded-full flex items-center justify-center font-bold border border-blue-400 cursor-pointer hover:bg-blue-900 transition-colors" title={user.name}>
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                </Link>
+                <button onClick={logout} className="p-2 hover:bg-white/10 rounded-full transition-colors" title="Logout">
+                  <LogOut className="h-5 w-5" />
+                </button>
+              </div>
+            ) : (
+              <Link href="/login" className="text-sm font-medium hover:text-blue-200 transition-colors">
+                Login
+              </Link>
+            )}
           </div>
         </div>
       </div>

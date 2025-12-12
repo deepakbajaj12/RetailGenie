@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { getOrders, type Order } from '@/lib/api'
-import { Users, Search, Mail, ShoppingBag, Calendar } from 'lucide-react'
+import { Users, Search, Mail, ShoppingBag, Calendar, Award, Gift, MessageSquare } from 'lucide-react'
+import Link from 'next/link'
 
 type Customer = {
   name: string
@@ -56,10 +57,24 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Customers</h1>
-          <p className="text-slate-600 mt-1">View your customer base and their purchase history.</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Customers</h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">View your customer base and their purchase history.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/customers/loyalty" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
+            <Award className="h-4 w-4 mr-2" />
+            Loyalty
+          </Link>
+          <Link href="/customers/gift-cards" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
+            <Gift className="h-4 w-4 mr-2" />
+            Gift Cards
+          </Link>
+          <Link href="/customers/feedback" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Feedback
+          </Link>
         </div>
       </div>
 

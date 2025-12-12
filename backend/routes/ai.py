@@ -7,6 +7,11 @@ try:
 except Exception:  # pragma: no cover
     OpenAI = None  # type: ignore
 
+try:
+    import google.generativeai as genai
+except Exception:
+    genai = None
+
 from utils.firebase_utils import FirebaseUtils
 from utils.vector_store import upsert_embeddings as upsert_json
 from utils.vector_store import query_similar as query_json
@@ -27,31 +32,57 @@ def _use_sqlite_store() -> bool:
 ai_bp = Blueprint("ai", __name__)
 
 
-def _get_openai_client():
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key or not OpenAI:
-        return None
-    try:
-        return OpenAI(api_key=api_key)
-    except Exception:
-        return None
+def _get_llm_client():
+    # Check OpenAI first
+    openai_key = os.getenv("OPENAI_API_KEY")
+    if openai_key and OpenAI:
+        try:
+            return "openai", OpenAI(api_key=openai_key)
+        except Exception:
+            pass
+
+    # Check Gemini
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    if gemini_key and genai:
+        try:
+            genai.configure(api_key=gemini_key)
+            return "gemini", None
+        except Exception:
+            pass
+
+    return None, None
 
 
-def _chat_complete(client, system_prompt: str, user_prompt: str) -> str:
-    # Prefer chat.completions endpoint for broad compatibility
-    try:
-        resp = client.chat.completions.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            temperature=0.2,
-            max_tokens=400,
-        )
-        return resp.choices[0].message.content or ""
-    except Exception as e:  # pragma: no cover
-        return f"LLM error: {e}"
+def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
+    provider, client = provider_info
+
+    if provider == "openai":
+        try:
+            resp = client.chat.completions.create(
+                model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=0.2,
+                max_tokens=400,
+            )
+            return resp.choices[0].message.content or ""
+        except Exception as e:  # pragma: no cover
+            return f"OpenAI error: {e}"
+
+    elif provider == "gemini":
+        try:
+            model_name = os.getenv("GEMINI_MODEL", "gemini-pro")
+            model = genai.GenerativeModel(model_name)
+            # Gemini doesn't have system prompts in the same way, usually prepended
+            full_prompt = f"System: {system_prompt}\n\nUser: {user_prompt}"
+            response = model.generate_content(full_prompt)
+            return response.text
+        except Exception as e:
+            return f"Gemini error: {e}"
+
+    return "No LLM provider configured."
 
 
 @ai_bp.route("/ai/summarize-feedback", methods=["POST"])
@@ -91,8 +122,8 @@ def summarize_feedback():
         else None
     )
 
-    client = _get_openai_client()
-    if client:
+    provider_info = _get_llm_client()
+    if provider_info[0]:
         system_prompt = (
             "You summarize customer feedback for retail products, returning a brief "
             "summary, key themes, and 3-5 actionable recommendations. Be concise."
@@ -110,7 +141,7 @@ def summarize_feedback():
             "Return JSON with keys: summary, key_themes (array of strings), "
             "recommended_actions (array of strings), sentiment ('positive'|'mixed'|'negative')."
         )
-        content = _chat_complete(client, system_prompt, user_prompt)
+        content = _chat_complete(provider_info, system_prompt, user_prompt)
         # Best-effort parse if JSON, else wrap in structure
         try:
             import json
@@ -162,8 +193,8 @@ def generate_description():
     features = data.get("features", [])
     tone = data.get("tone", "concise")
 
-    client = _get_openai_client()
-    if not client:
+    provider_info = _get_llm_client()
+    if not provider_info[0]:
         desc = f"{name} is a great {category} product. Key features: {', '.join(features)}."
         return jsonify({"description": desc, "model": None}), 200
 
@@ -175,7 +206,7 @@ def generate_description():
         f"Name: {name}\nCategory: {category}\nFeatures: {', '.join(features)}\nTone: {tone}\n"
         "Return only the description text."
     )
-    content = _chat_complete(client, system_prompt, user_prompt)
+    content = _chat_complete(provider_info, system_prompt, user_prompt)
     return jsonify({"description": content, "model": os.getenv("OPENAI_MODEL", "gpt-4o-mini")}), 200
 
 
@@ -388,13 +419,13 @@ def ai_insights():
         })
 
     # Optional LLM shrink/summarize of the weekly plan
-    client = _get_openai_client()
+    provider_info = _get_llm_client()
     summary = None
-    if client:
+    if provider_info[0]:
         import json as _json
         sys_prompt = "Summarize weekly retail insights into 5-8 concise bullets."
         usr_prompt = f"Data: {_json.dumps(actions)[:6000]}"
-        summary = _chat_complete(client, sys_prompt, usr_prompt)
+        summary = _chat_complete(provider_info, sys_prompt, usr_prompt)
 
     return jsonify({
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -414,10 +445,10 @@ def chat_assistant():
     if not user_message:
         return jsonify({"error": "Message is required"}), 400
 
-    client = _get_openai_client()
+    provider_info = _get_llm_client()
     
-    # Mock response if no OpenAI key
-    if not client:
+    # Mock response if no LLM key
+    if not provider_info[0]:
         # Simple keyword matching for demo purposes
         msg = user_message.lower()
         if "revenue" in msg:
@@ -427,7 +458,7 @@ def chat_assistant():
         elif "hello" in msg or "hi" in msg:
             return jsonify({"reply": "Hello! I'm RetailGenie. Ask me about sales, inventory, or product performance."})
         else:
-            return jsonify({"reply": "I'm running in offline mode. Configure OpenAI API key for full intelligence."})
+            return jsonify({"reply": "I'm running in offline mode. Configure OpenAI or Gemini API key for full intelligence."})
 
     # Real AI response
     system_prompt = (
@@ -436,5 +467,5 @@ def chat_assistant():
         "Be professional, concise, and helpful."
     )
     
-    reply = _chat_complete(client, system_prompt, user_message)
+    reply = _chat_complete(provider_info, system_prompt, user_message)
     return jsonify({"reply": reply})
