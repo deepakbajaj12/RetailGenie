@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getOrders, createOrder, getProducts, type Order, type Product } from '@/lib/api'
-import { Search, Plus, Filter, ShoppingBag, Clock, CheckCircle2, XCircle, Truck, Package, ChevronDown, ChevronUp, Loader2, Trash } from 'lucide-react'
+import { getOrders, createOrder, updateOrder, getProducts, type Order, type Product } from '@/lib/api'
+import { Search, Plus, Filter, ShoppingBag, Clock, CheckCircle2, XCircle, Truck, Package, ChevronDown, ChevronUp, Loader2, Trash, Download, Printer } from 'lucide-react'
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -121,6 +121,92 @@ export default function OrdersPage() {
     }
   }
 
+  const handleExportCSV = () => {
+    const headers = ['Order ID', 'Customer', 'Date', 'Status', 'Total', 'Items']
+    const csvContent = [
+      headers.join(','),
+      ...orders.map(order => [
+        order.id,
+        `"${order.customer_name}"`,
+        new Date(order.created_at!).toLocaleDateString(),
+        order.status,
+        order.total_amount,
+        `"${order.items.map(i => `${i.quantity}x ${i.product_name}`).join('; ')}"`
+      ].join(','))
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `orders-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+  }
+
+  const handleStatusUpdate = async (orderId: string, newStatus: any) => {
+    try {
+      await updateOrder(orderId, { status: newStatus })
+      fetchOrders()
+    } catch (err) {
+      alert('Failed to update status')
+    }
+  }
+
+  const handlePrint = (order: Order) => {
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Invoice #${order.id}</title>
+            <style>
+              body { font-family: sans-serif; padding: 20px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background-color: #f2f2f2; }
+              .header { margin-bottom: 30px; }
+              .total { margin-top: 20px; text-align: right; font-size: 1.2em; font-weight: bold; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>RetailGenie Invoice</h1>
+              <p>Order ID: ${order.id}</p>
+              <p>Customer: ${order.customer_name}</p>
+              <p>Date: ${new Date(order.created_at!).toLocaleDateString()}</p>
+              <p>Status: ${order.status}</p>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.items.map(item => `
+                  <tr>
+                    <td>${item.product_name}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${item.price.toFixed(2)}</td>
+                    <td>$${(item.price * item.quantity).toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            <div class="total">
+              Total: $${order.total_amount.toFixed(2)}
+            </div>
+            <script>window.print()</script>
+          </body>
+        </html>
+      `)
+      printWindow.document.close()
+    }
+  }
+
   if (loading && orders.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -136,13 +222,22 @@ export default function OrdersPage() {
           <h1 className="text-3xl font-bold text-slate-900">Orders</h1>
           <p className="text-slate-600 mt-1">Manage customer orders and track status.</p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium"
-        >
-          <Plus className="h-4 w-4" />
-          New Order
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors shadow-sm font-medium"
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </button>
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium"
+          >
+            <Plus className="h-4 w-4" />
+            New Order
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -195,9 +290,31 @@ export default function OrdersPage() {
                       <tr className="bg-slate-50/50">
                         <td colSpan={6} className="px-6 py-4">
                           <div className="bg-white rounded-lg border border-slate-200 p-4">
-                            <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                              <ShoppingBag className="h-4 w-4 text-blue-500" /> Order Items
-                            </h4>
+                            <div className="flex justify-between items-start mb-4">
+                              <h4 className="font-semibold text-slate-900 flex items-center gap-2">
+                                <ShoppingBag className="h-4 w-4 text-blue-500" /> Order Items
+                              </h4>
+                              <div className="flex gap-2">
+                                <select
+                                  value={order.status}
+                                  onChange={(e) => handleStatusUpdate(order.id!, e.target.value)}
+                                  className="text-sm border border-slate-200 rounded-md px-2 py-1"
+                                >
+                                  <option value="Pending">Pending</option>
+                                  <option value="Processing">Processing</option>
+                                  <option value="Shipped">Shipped</option>
+                                  <option value="Delivered">Delivered</option>
+                                  <option value="Cancelled">Cancelled</option>
+                                </select>
+                                <button
+                                  onClick={() => handlePrint(order)}
+                                  className="p-1 text-slate-500 hover:text-blue-600 border border-slate-200 rounded-md"
+                                  title="Print Invoice"
+                                >
+                                  <Printer className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
                             <div className="space-y-2">
                               {order.items?.map((item, idx) => (
                                 <div key={idx} className="flex justify-between text-sm border-b border-slate-50 last:border-0 pb-2 last:pb-0">

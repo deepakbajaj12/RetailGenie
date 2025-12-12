@@ -230,6 +230,33 @@ def create_app():
             logger.error(f"Error creating order: {str(e)}")
             return jsonify({"error": "Failed to create order"}), 500
 
+    @app.route("/api/orders/<order_id>", methods=["PUT"])
+    def update_order(order_id):
+        try:
+            data, error_response, status_code = get_json_data()
+            if error_response:
+                return error_response, status_code
+
+            existing_order = firebase.get_document("orders", order_id)
+            if not existing_order:
+                return jsonify({"error": "Order not found"}), 404
+
+            update_data = {"updated_at": datetime.now(timezone.utc).isoformat()}
+            
+            if "status" in data:
+                update_data["status"] = data["status"]
+            
+            firebase.update_document("orders", order_id, update_data)
+            
+            updated_order = firebase.get_document("orders", order_id)
+            updated_order["id"] = order_id
+            
+            logger.info(f"Updated order: {order_id}")
+            return jsonify(updated_order)
+        except Exception as e:
+            logger.error(f"Error updating order {order_id}: {str(e)}")
+            return jsonify({"error": "Failed to update order"}), 500
+
     # Authentication endpoints
     @app.route("/api/auth/register", methods=["POST"])
     def register():

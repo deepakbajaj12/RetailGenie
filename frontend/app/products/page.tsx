@@ -30,6 +30,7 @@ export default function ProductsPage() {
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
+  const [stockFilter, setStockFilter] = useState<'all' | 'in_stock' | 'out_of_stock'>('all')
   const [sortBy, setSortBy] = useState<'name' | 'price-asc' | 'price-desc'>('name')
 
   // Modal & Edit State
@@ -37,6 +38,7 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [formData, setFormData] = useState<ProductFormData>(INITIAL_FORM)
   const [saving, setSaving] = useState(false)
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     fetchProducts()
@@ -105,6 +107,27 @@ export default function ProductsPage() {
     }
   }
 
+  const toggleSelection = (id: string) => {
+    const newSelection = new Set(selectedProducts)
+    if (newSelection.has(id)) {
+      newSelection.delete(id)
+    } else {
+      newSelection.add(id)
+    }
+    setSelectedProducts(newSelection)
+  }
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`Delete ${selectedProducts.size} products?`)) return
+    try {
+      await Promise.all(Array.from(selectedProducts).map(id => deleteProduct(id)))
+      setProducts(products.filter(p => !selectedProducts.has(p.id!)))
+      setSelectedProducts(new Set())
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete products')
+    }
+  }
+
   function handleExport() {
     const headers = ['Name', 'Price', 'Category', 'Stock Status', 'Description']
     const csvContent = [
@@ -132,7 +155,8 @@ export default function ProductsPage() {
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                            product.description?.toLowerCase().includes(searchQuery.toLowerCase())
       const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory
-      return matchesSearch && matchesCategory
+      const matchesStock = stockFilter === 'all' || (stockFilter === 'in_stock' ? product.in_stock : !product.in_stock)
+      return matchesSearch && matchesCategory && matchesStock
     })
     .sort((a, b) => {
       if (sortBy === 'price-asc') return a.price - b.price
@@ -157,6 +181,15 @@ export default function ProductsPage() {
           <p className="text-slate-600 mt-1">Manage your inventory, prices, and product details.</p>
         </div>
         <div className="flex gap-2">
+          {selectedProducts.size > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors shadow-sm font-medium"
+            >
+              <Trash className="h-4 w-4" />
+              Delete ({selectedProducts.size})
+            </button>
+          )}
           <button
             onClick={handleExport}
             className="flex items-center gap-2 px-4 py-2 bg-white text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm font-medium"
@@ -201,6 +234,19 @@ export default function ProductsPage() {
           </div>
           
           <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-lg border border-slate-200">
+            <Package className="h-4 w-4 text-slate-500" />
+            <select
+              value={stockFilter}
+              onChange={(e) => setStockFilter(e.target.value as any)}
+              className="bg-transparent border-none focus:ring-0 text-sm text-slate-600 cursor-pointer"
+            >
+              <option value="all">All Stock</option>
+              <option value="in_stock">In Stock</option>
+              <option value="out_of_stock">Out of Stock</option>
+            </select>
+          </div>
+          
+          <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-lg border border-slate-200">
             <Filter className="h-4 w-4 text-slate-500" />
             <select
               value={selectedCategory}
@@ -221,6 +267,14 @@ export default function ProductsPage() {
           <div key={product.id} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
             {/* Image Section */}
             <div className="h-48 w-full bg-slate-100 relative overflow-hidden">
+              <div className="absolute top-2 left-2 z-10">
+                <input 
+                  type="checkbox" 
+                  checked={selectedProducts.has(product.id!)}
+                  onChange={() => toggleSelection(product.id!)}
+                  className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer shadow-sm"
+                />
+              </div>
               {product.image_url ? (
                 <img 
                   src={product.image_url} 

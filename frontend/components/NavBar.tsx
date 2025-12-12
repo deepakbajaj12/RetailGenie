@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Store } from 'lucide-react'
+import { Store, Bell, Moon, User } from 'lucide-react'
 
 export function NavBar() {
   return (
@@ -9,14 +9,31 @@ export function NavBar() {
           <Store className="h-6 w-6" />
           RetailGenie
         </Link>
-        <nav className="flex gap-6 text-sm font-medium">
-          <Link href="/dashboard" className="hover:text-blue-200 transition-colors">Dashboard</Link>
-          <Link href="/forecast" className="hover:text-blue-200 transition-colors">Forecast</Link>
-          <Link href="/assistant" className="hover:text-blue-200 transition-colors">Assistant</Link>
-          <Link href="/products" className="hover:text-blue-200 transition-colors">Products</Link>
-          <Link href="/orders" className="hover:text-blue-200 transition-colors">Orders</Link>
-          <Link href="/ai" className="hover:text-blue-200 transition-colors">AI Tools</Link>
-        </nav>
+        <div className="flex items-center gap-8">
+          <nav className="flex gap-6 text-sm font-medium">
+            <Link href="/dashboard" className="hover:text-blue-200 transition-colors">Dashboard</Link>
+            <Link href="/forecast" className="hover:text-blue-200 transition-colors">Forecast</Link>
+            <Link href="/assistant" className="hover:text-blue-200 transition-colors">Assistant</Link>
+            <Link href="/products" className="hover:text-blue-200 transition-colors">Products</Link>
+            <Link href="/orders" className="hover:text-blue-200 transition-colors">Orders</Link>
+            <Link href="/customers" className="hover:text-blue-200 transition-colors">Customers</Link>
+            <Link href="/analytics" className="hover:text-blue-200 transition-colors">Analytics</Link>
+            <Link href="/settings" className="hover:text-blue-200 transition-colors">Settings</Link>
+            <Link href="/ai" className="hover:text-blue-200 transition-colors">AI Tools</Link>
+          </nav>
+          <div className="flex items-center gap-3 pl-6 border-l border-blue-400/30">
+            <button className="p-2 hover:bg-white/10 rounded-full transition-colors relative" title="Notifications">
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-2 right-2 h-2 w-2 bg-red-400 rounded-full border border-blue-600"></span>
+            </button>
+            <button className="p-2 hover:bg-white/10 rounded-full transition-colors" title="Toggle Theme">
+              <Moon className="h-5 w-5" />
+            </button>
+            <div className="h-8 w-8 bg-blue-800 rounded-full flex items-center justify-center font-bold border border-blue-400 cursor-pointer hover:bg-blue-900 transition-colors" title="User Profile">
+              <User className="h-4 w-4" />
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   )
