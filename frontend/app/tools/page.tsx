@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ScanLine, Tag, ChevronRight, Wrench } from 'lucide-react'
+import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic } from 'lucide-react'
 
 export default function ToolsPage() {
   const tools = [
@@ -20,6 +20,22 @@ export default function ToolsPage() {
       desc: 'Design and print custom product labels',
       color: 'text-purple-600',
       bg: 'bg-purple-50 dark:bg-purple-900/20'
+    },
+    { 
+      title: 'Store Planogram', 
+      icon: LayoutGrid, 
+      href: '/tools/planogram', 
+      desc: 'Visual store layout and shelf management',
+      color: 'text-orange-600',
+      bg: 'bg-orange-50 dark:bg-orange-900/20'
+    },
+    { 
+      title: 'Voice Assistant', 
+      icon: Mic, 
+      href: '/tools/voice', 
+      desc: 'Hands-free voice commands for operations',
+      color: 'text-red-600',
+      bg: 'bg-red-50 dark:bg-red-900/20'
     }
   ]
 

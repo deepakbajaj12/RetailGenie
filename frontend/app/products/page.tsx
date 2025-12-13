@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getProducts, createProduct, updateProduct, deleteProduct, type Product } from '@/lib/api'
-import { Search, Plus, Filter, Edit, Trash, X, Save, Loader2, Package, Tag, DollarSign, FileImage, Download, ArrowUpDown, CheckCircle2, AlertCircle, ClipboardList, Truck } from 'lucide-react'
+import { Search, Plus, Filter, Edit, Trash, X, Save, Loader2, Package, Tag, DollarSign, FileImage, Download, ArrowUpDown, CheckCircle2, AlertCircle, ClipboardList, Truck, RefreshCw, Eye } from 'lucide-react'
 import Link from 'next/link'
 
 type ProductFormData = {
@@ -210,6 +210,18 @@ export default function ProductsPage() {
             <Download className="h-4 w-4" />
             Export CSV
           </button>
+          <Link href="/products/reorder">
+            <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-medium">
+              <RefreshCw className="h-4 w-4" />
+              Smart Reorder
+            </button>
+          </Link>
+          <Link href="/products/competitors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium">
+              <Eye className="h-4 w-4" />
+              Competitors
+            </button>
+          </Link>
           <button
             onClick={() => { setEditingProduct(null); setIsModalOpen(true) }}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium"

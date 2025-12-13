@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { getOrders, getProducts, type Order, type Product } from '@/lib/api'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
-import { Loader2, Target, DollarSign } from 'lucide-react'
+import { Loader2, Target, DollarSign, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 
 export default function AnalyticsPage() {
@@ -70,6 +70,10 @@ export default function AnalyticsPage() {
           <Link href="/analytics/targets" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
             <Target className="h-4 w-4 mr-2" />
             Sales Targets
+          </Link>
+          <Link href="/analytics/forecasting" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Forecasting
           </Link>
           <Link href="/analytics/expenses" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
             <DollarSign className="h-4 w-4 mr-2" />
