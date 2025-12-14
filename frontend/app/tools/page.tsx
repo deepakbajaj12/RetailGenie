@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic } from 'lucide-react'
+import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic, Users, Wifi, Truck } from 'lucide-react'
 
 export default function ToolsPage() {
   const tools = [
@@ -36,6 +36,30 @@ export default function ToolsPage() {
       desc: 'Hands-free voice commands for operations',
       color: 'text-red-600',
       bg: 'bg-red-50 dark:bg-red-900/20'
+    },
+    { 
+      title: 'Staff Management', 
+      icon: Users, 
+      href: '/tools/staff', 
+      desc: 'Employee scheduling and performance tracking',
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50 dark:bg-indigo-900/20'
+    },
+    { 
+      title: 'IoT Dashboard', 
+      icon: Wifi, 
+      href: '/tools/iot', 
+      desc: 'Monitor store sensors and environment',
+      color: 'text-cyan-600',
+      bg: 'bg-cyan-50 dark:bg-cyan-900/20'
+    },
+    { 
+      title: 'Fleet Management', 
+      icon: Truck, 
+      href: '/tools/fleet', 
+      desc: 'Track deliveries and optimize routes',
+      color: 'text-blue-600',
+      bg: 'bg-blue-50 dark:bg-blue-900/20'
     }
   ]
 

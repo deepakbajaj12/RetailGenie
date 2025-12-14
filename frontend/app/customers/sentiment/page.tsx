@@ -1,7 +1,7 @@
 'use client'
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts'
-import { Smile, Meh, Frown, MessageCircle } from 'lucide-react'
+import { Smile, Meh, Frown, MessageCircle, AlertTriangle } from 'lucide-react'
 
 const SENTIMENT_DATA = [
   { name: 'Positive', value: 65, color: '#22c55e' },

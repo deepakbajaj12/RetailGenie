@@ -45,6 +45,16 @@ This document provides the final status of the RetailGenie backend implementatio
    - Customer Sentiment Analysis (Customers)
    - Store Planogram Tool (Tools)
    - Voice Command Assistant (Tools)
+   - Staff Management (Tools)
+   - Supplier Scorecard (Products)
+   - IoT Sensor Dashboard (Tools)
+   - Loss Prevention Analytics (Analytics)
+   - Marketing Campaigns (Customers)
+   - Dynamic Pricing Engine (Products)
+   - Customer Loyalty Tiers (Customers)
+   - Store Traffic Heatmap (Analytics)
+   - Delivery Fleet Management (Tools)
+   - Sustainability Tracker (Analytics)
 
 ## 🚀 **Quick Start Guide**
 

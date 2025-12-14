@@ -56,6 +56,96 @@ The following 6 advanced features have been successfully implemented and integra
   - Visual feedback for listening and processing states.
   - Lists available commands.
 
+## 7. Staff Management
+- **Location**: `/tools/staff`
+- **Access**: Via "Tools" -> "Staff Management" card.
+- **Features**:
+  - Weekly shift scheduling view.
+  - Employee performance tracking (Sales vs Hours).
+  - Real-time status indicators (On Shift, Break, Off).
+  - Efficiency metrics calculation.
+
+## 8. Supplier Scorecard
+- **Location**: `/products/suppliers`
+- **Access**: Via "Products" -> "Suppliers" button.
+- **Features**:
+  - Supplier performance rating system (On-Time, Quality, Price).
+  - Radar chart visualization for supplier comparison.
+  - Status tracking (Preferred, At Risk, Active).
+  - Detailed metrics breakdown.
+
+## 9. IoT Sensor Dashboard
+- **Location**: `/tools/iot`
+- **Access**: Via "Tools" -> "IoT Dashboard" card.
+- **Features**:
+  - Real-time monitoring of store sensors (Temperature, Foot Traffic).
+  - Visual alerts for anomalies (e.g., high fridge temp).
+  - Energy usage tracking.
+  - Smart shelf inventory levels.
+
+## 10. Loss Prevention Analytics
+- **Location**: `/analytics/loss-prevention`
+- **Access**: Via "Analytics" -> "Loss Prevention" button.
+- **Features**:
+  - Shrinkage source breakdown (Theft, Admin Error, etc.).
+  - Suspicious activity log (Void transactions, Price overrides).
+  - Risk scoring for transactions.
+  - Financial impact estimation.
+
+## 11. Marketing Campaigns
+- **Location**: `/customers/campaigns`
+- **Access**: Via "Customers" -> "Campaigns" button.
+- **Features**:
+  - Campaign performance tracking (Email, SMS).
+  - Conversion rate analytics.
+  - Engagement trends (Opens vs Clicks).
+  - Campaign status management.
+
+## 12. Dynamic Pricing Engine
+- **Location**: `/products/pricing`
+- **Access**: Via "Products" -> "Dynamic Pricing" button.
+- **Features**:
+  - AI-driven price suggestions based on demand and elasticity.
+  - Real-time price vs demand analysis chart.
+  - Competitor price comparison.
+  - Margin impact calculation.
+
+## 13. Customer Loyalty Tiers
+- **Location**: `/customers/loyalty-tiers`
+- **Access**: Via "Customers" -> "Tiers" button.
+- **Features**:
+  - Tier management (Bronze, Silver, Gold).
+  - Member distribution visualization.
+  - Top customer tracking.
+  - Perk configuration display.
+
+## 14. Store Traffic Heatmap
+- **Location**: `/analytics/heatmap`
+- **Access**: Via "Analytics" -> "Heatmap" button.
+- **Features**:
+  - Visual heatmap of store traffic intensity.
+  - Zoom controls for detailed view.
+  - Hotspot and cold zone identification.
+  - Layout optimization insights.
+
+## 15. Delivery Fleet Management
+- **Location**: `/tools/fleet`
+- **Access**: Via "Tools" -> "Fleet Management" card.
+- **Features**:
+  - Real-time vehicle tracking and status.
+  - Driver performance metrics.
+  - Route progress visualization.
+  - Fleet efficiency stats (Fuel, On-Time Rate).
+
+## 16. Sustainability Tracker
+- **Location**: `/analytics/sustainability`
+- **Access**: Via "Analytics" -> "Sustainability" button.
+- **Features**:
+  - Energy consumption trends.
+  - Waste management breakdown (Recycled vs Landfill).
+  - Carbon footprint tracking.
+  - Resource efficiency metrics (Water, Energy).
+
 ## Integration Details
 - All new pages are built using the existing design system (Tailwind CSS, Lucide Icons).
 - Navigation links have been added to the respective parent pages (`/analytics`, `/products`, `/customers`, `/tools`).

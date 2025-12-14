@@ -222,6 +222,18 @@ export default function ProductsPage() {
               Competitors
             </button>
           </Link>
+          <Link href="/products/suppliers">
+            <button className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors shadow-sm font-medium">
+              <Truck className="h-4 w-4" />
+              Suppliers
+            </button>
+          </Link>
+          <Link href="/products/pricing">
+            <button className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors shadow-sm font-medium">
+              <DollarSign className="h-4 w-4" />
+              Dynamic Pricing
+            </button>
+          </Link>
           <button
             onClick={() => { setEditingProduct(null); setIsModalOpen(true) }}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium"

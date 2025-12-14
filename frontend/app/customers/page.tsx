@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getOrders, type Order } from '@/lib/api'
-import { Users, Search, Mail, ShoppingBag, Calendar, Award, Gift, MessageSquare, Heart } from 'lucide-react'
+import { Users, Search, Mail, ShoppingBag, Calendar, Award, Gift, MessageSquare, Heart, Megaphone, Crown } from 'lucide-react'
 import Link from 'next/link'
 
 type Customer = {
@@ -78,6 +78,14 @@ export default function CustomersPage() {
           <Link href="/customers/sentiment" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
             <Heart className="h-4 w-4 mr-2" />
             Sentiment
+          </Link>
+          <Link href="/customers/campaigns" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
+            <Megaphone className="h-4 w-4 mr-2" />
+            Campaigns
+          </Link>
+          <Link href="/customers/loyalty-tiers" className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors text-slate-700 dark:text-slate-300 shadow-sm font-medium">
+            <Crown className="h-4 w-4 mr-2" />
+            Tiers
           </Link>
         </div>
       </div>
