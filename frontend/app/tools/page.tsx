@@ -1,10 +1,114 @@
 'use client'
 
 import Link from 'next/link'
-import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic, Users, Wifi, Truck } from 'lucide-react'
+import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic, Users, Wifi, Truck, CreditCard, ShoppingBag, BookOpen, Factory, Sparkles, Instagram, Activity, Smartphone, Navigation, Monitor, Glasses, Link as LinkIcon, Bot } from 'lucide-react'
 
 export default function ToolsPage() {
   const tools = [
+    { 
+      title: 'AR Wayfinder', 
+      icon: Navigation, 
+      href: '/tools/ar-wayfinder', 
+      desc: 'Augmented reality in-store navigation',
+      color: 'text-cyan-600',
+      bg: 'bg-cyan-50 dark:bg-cyan-900/20'
+    },
+    { 
+      title: 'Smart Signage', 
+      icon: Monitor, 
+      href: '/tools/smart-signage', 
+      desc: 'AI-driven adaptive digital billboards',
+      color: 'text-fuchsia-600',
+      bg: 'bg-fuchsia-50 dark:bg-fuchsia-900/20'
+    },
+    { 
+      title: 'VR Digital Twin', 
+      icon: Glasses, 
+      href: '/tools/vr-twin', 
+      desc: '3D immersive store management',
+      color: 'text-violet-600',
+      bg: 'bg-violet-50 dark:bg-violet-900/20'
+    },
+    { 
+      title: 'Robot Fleet', 
+      icon: Bot, 
+      href: '/tools/robot-fleet', 
+      desc: 'Autonomous drone and droid control',
+      color: 'text-yellow-600',
+      bg: 'bg-yellow-50 dark:bg-yellow-900/20'
+    },
+    { 
+      title: 'Blockchain Passport', 
+      icon: LinkIcon, 
+      href: '/products/blockchain', 
+      desc: 'Immutable product journey tracking',
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50 dark:bg-emerald-900/20'
+    },
+    { 
+      title: 'AI Personal Stylist', 
+      icon: Sparkles, 
+      href: '/tools/stylist', 
+      desc: 'Personalized outfit recommendations',
+      color: 'text-pink-600',
+      bg: 'bg-pink-50 dark:bg-pink-900/20'
+    },
+    { 
+      title: 'Social Commerce Hub', 
+      icon: Instagram, 
+      href: '/tools/social', 
+      desc: 'Monetize social media posts',
+      color: 'text-rose-600',
+      bg: 'bg-rose-50 dark:bg-rose-900/20'
+    },
+    { 
+      title: 'Predictive Maintenance', 
+      icon: Activity, 
+      href: '/tools/maintenance', 
+      desc: 'AI-driven equipment health monitoring',
+      color: 'text-orange-600',
+      bg: 'bg-orange-50 dark:bg-orange-900/20'
+    },
+    { 
+      title: 'Smart Shelf Labels (ESL)', 
+      icon: Smartphone, 
+      href: '/tools/esl', 
+      desc: 'Manage electronic pricing displays',
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50 dark:bg-indigo-900/20'
+    },
+    { 
+      title: 'Point of Sale (POS)', 
+      icon: CreditCard, 
+      href: '/tools/pos', 
+      desc: 'Process sales and manage checkout',
+      color: 'text-green-600',
+      bg: 'bg-green-50 dark:bg-green-900/20'
+    },
+    { 
+      title: 'Self-Checkout Kiosk', 
+      icon: ShoppingBag, 
+      href: '/tools/kiosk', 
+      desc: 'Customer-facing self-service terminal',
+      color: 'text-teal-600',
+      bg: 'bg-teal-50 dark:bg-teal-900/20'
+    },
+    { 
+      title: 'Employee Training', 
+      icon: BookOpen, 
+      href: '/tools/training', 
+      desc: 'Learning modules and progress tracking',
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50 dark:bg-indigo-900/20'
+    },
+    { 
+      title: 'Vendor Portal', 
+      icon: Factory, 
+      href: '/tools/vendor-portal', 
+      desc: 'Supplier management and order tracking',
+      color: 'text-slate-600',
+      bg: 'bg-slate-50 dark:bg-slate-900/20'
+    },
     { 
       title: 'Barcode Generator', 
       icon: ScanLine, 
