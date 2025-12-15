@@ -1,10 +1,50 @@
 'use client'
 
 import Link from 'next/link'
-import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic, Users, Wifi, Truck, CreditCard, ShoppingBag, BookOpen, Factory, Sparkles, Instagram, Activity, Smartphone, Navigation, Monitor, Glasses, Link as LinkIcon, Bot, Leaf, ShieldAlert, Trophy, Shirt } from 'lucide-react'
+import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic, Users, Wifi, Truck, CreditCard, ShoppingBag, BookOpen, Factory, Sparkles, Instagram, Activity, Smartphone, Navigation, Monitor, Glasses, Link as LinkIcon, Bot, Leaf, ShieldAlert, Trophy, Shirt, Video, Clock, Recycle, User, Calendar } from 'lucide-react'
 
 export default function ToolsPage() {
   const tools = [
+    { 
+      title: 'Live Stream Shopping', 
+      icon: Video, 
+      href: '/tools/live-shopping', 
+      desc: 'Interactive video commerce events',
+      color: 'text-rose-600',
+      bg: 'bg-rose-50 dark:bg-rose-900/20'
+    },
+    { 
+      title: 'Smart Queue System', 
+      icon: Clock, 
+      href: '/tools/queue-management', 
+      desc: 'Virtual queuing and wait time tracking',
+      color: 'text-blue-600',
+      bg: 'bg-blue-50 dark:bg-blue-900/20'
+    },
+    { 
+      title: 'Circular Economy Hub', 
+      icon: Recycle, 
+      href: '/tools/returns', 
+      desc: 'Manage returns, repairs, and recycling',
+      color: 'text-green-600',
+      bg: 'bg-green-50 dark:bg-green-900/20'
+    },
+    { 
+      title: 'Virtual Concierge', 
+      icon: User, 
+      href: '/tools/concierge', 
+      desc: '1-on-1 video calls with product experts',
+      color: 'text-purple-600',
+      bg: 'bg-purple-50 dark:bg-purple-900/20'
+    },
+    { 
+      title: 'Community Events', 
+      icon: Calendar, 
+      href: '/tools/events', 
+      desc: 'In-store workshops and meetups',
+      color: 'text-pink-600',
+      bg: 'bg-pink-50 dark:bg-pink-900/20'
+    },
     { 
       title: 'Sustainability Tracker', 
       icon: Leaf, 
