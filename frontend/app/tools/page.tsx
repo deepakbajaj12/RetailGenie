@@ -1,10 +1,50 @@
 'use client'
 
 import Link from 'next/link'
-import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic, Users, Wifi, Truck, CreditCard, ShoppingBag, BookOpen, Factory, Sparkles, Instagram, Activity, Smartphone, Navigation, Monitor, Glasses, Link as LinkIcon, Bot, Leaf, ShieldAlert, Trophy, Shirt, Video, Clock, Recycle, User, Calendar, ShoppingCart, Zap } from 'lucide-react'
+import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic, Users, Wifi, Truck, CreditCard, ShoppingBag, BookOpen, Factory, Sparkles, Instagram, Activity, Smartphone, Navigation, Monitor, Glasses, Link as LinkIcon, Bot, Leaf, ShieldAlert, Trophy, Shirt, Video, Clock, Recycle, User, Calendar, ShoppingCart, Zap, Scan, Smile, Trash2, Snowflake, Siren } from 'lucide-react'
 
 export default function ToolsPage() {
   const tools = [
+    { 
+      title: 'Biometric Checkout', 
+      icon: Scan, 
+      href: '/tools/biometric-pay', 
+      desc: 'Secure facial and palm recognition payment',
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50 dark:bg-indigo-900/20'
+    },
+    { 
+      title: 'Customer Sentiment AI', 
+      icon: Smile, 
+      href: '/tools/sentiment-analysis', 
+      desc: 'Real-time emotion and atmosphere analysis',
+      color: 'text-pink-600',
+      bg: 'bg-pink-50 dark:bg-pink-900/20'
+    },
+    { 
+      title: 'Smart Waste Systems', 
+      icon: Trash2, 
+      href: '/tools/smart-waste', 
+      desc: 'IoT recycling and waste level monitoring',
+      color: 'text-green-600',
+      bg: 'bg-green-50 dark:bg-green-900/20'
+    },
+    { 
+      title: 'Cold Chain Guardian', 
+      icon: Snowflake, 
+      href: '/tools/cold-chain', 
+      desc: 'Temperature monitoring for perishables',
+      color: 'text-cyan-600',
+      bg: 'bg-cyan-50 dark:bg-cyan-900/20'
+    },
+    { 
+      title: 'Emergency Command', 
+      icon: Siren, 
+      href: '/tools/emergency-response', 
+      desc: 'Centralized incident response dashboard',
+      color: 'text-red-600',
+      bg: 'bg-red-50 dark:bg-red-900/20'
+    },
     { 
       title: 'Smart Cart Fleet', 
       icon: ShoppingCart, 
