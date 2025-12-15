@@ -1,10 +1,50 @@
 'use client'
 
 import Link from 'next/link'
-import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic, Users, Wifi, Truck, CreditCard, ShoppingBag, BookOpen, Factory, Sparkles, Instagram, Activity, Smartphone, Navigation, Monitor, Glasses, Link as LinkIcon, Bot, Leaf, ShieldAlert, Trophy, Shirt, Video, Clock, Recycle, User, Calendar } from 'lucide-react'
+import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic, Users, Wifi, Truck, CreditCard, ShoppingBag, BookOpen, Factory, Sparkles, Instagram, Activity, Smartphone, Navigation, Monitor, Glasses, Link as LinkIcon, Bot, Leaf, ShieldAlert, Trophy, Shirt, Video, Clock, Recycle, User, Calendar, ShoppingCart, Zap } from 'lucide-react'
 
 export default function ToolsPage() {
   const tools = [
+    { 
+      title: 'Smart Cart Fleet', 
+      icon: ShoppingCart, 
+      href: '/tools/smart-cart', 
+      desc: 'Monitor active shopping sessions and cart health',
+      color: 'text-blue-600',
+      bg: 'bg-blue-50 dark:bg-blue-900/20'
+    },
+    { 
+      title: 'Dynamic Pricing Engine', 
+      icon: Zap, 
+      href: '/tools/dynamic-pricing', 
+      desc: 'AI-driven real-time price optimization',
+      color: 'text-yellow-600',
+      bg: 'bg-yellow-50 dark:bg-yellow-900/20'
+    },
+    { 
+      title: 'Subscription Manager', 
+      icon: CreditCard, 
+      href: '/tools/subscriptions', 
+      desc: 'Manage recurring revenue and memberships',
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50 dark:bg-indigo-900/20'
+    },
+    { 
+      title: 'Interactive Window Display', 
+      icon: Monitor, 
+      href: '/tools/window-display', 
+      desc: 'Control storefront digital signage',
+      color: 'text-pink-600',
+      bg: 'bg-pink-50 dark:bg-pink-900/20'
+    },
+    { 
+      title: 'Crowd Analytics', 
+      icon: Activity, 
+      href: '/tools/crowd-analytics', 
+      desc: 'Real-time foot traffic analysis and heatmapping',
+      color: 'text-orange-600',
+      bg: 'bg-orange-50 dark:bg-orange-900/20'
+    },
     { 
       title: 'Live Stream Shopping', 
       icon: Video, 
