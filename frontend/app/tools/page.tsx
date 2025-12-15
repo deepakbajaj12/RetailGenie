@@ -1,10 +1,50 @@
 'use client'
 
 import Link from 'next/link'
-import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic, Users, Wifi, Truck, CreditCard, ShoppingBag, BookOpen, Factory, Sparkles, Instagram, Activity, Smartphone, Navigation, Monitor, Glasses, Link as LinkIcon, Bot } from 'lucide-react'
+import { ScanLine, Tag, ChevronRight, Wrench, LayoutGrid, Mic, Users, Wifi, Truck, CreditCard, ShoppingBag, BookOpen, Factory, Sparkles, Instagram, Activity, Smartphone, Navigation, Monitor, Glasses, Link as LinkIcon, Bot, Leaf, ShieldAlert, Trophy, Shirt } from 'lucide-react'
 
 export default function ToolsPage() {
   const tools = [
+    { 
+      title: 'Sustainability Tracker', 
+      icon: Leaf, 
+      href: '/tools/sustainability', 
+      desc: 'ESG goals and carbon footprint monitoring',
+      color: 'text-green-600',
+      bg: 'bg-green-50 dark:bg-green-900/20'
+    },
+    { 
+      title: 'Loss Prevention AI', 
+      icon: ShieldAlert, 
+      href: '/tools/loss-prevention', 
+      desc: 'Real-time theft and hazard detection',
+      color: 'text-red-600',
+      bg: 'bg-red-50 dark:bg-red-900/20'
+    },
+    { 
+      title: 'Gamification Engine', 
+      icon: Trophy, 
+      href: '/tools/gamification', 
+      desc: 'Customer loyalty quests and rewards',
+      color: 'text-yellow-600',
+      bg: 'bg-yellow-50 dark:bg-yellow-900/20'
+    },
+    { 
+      title: 'Hyper-Local Dispatch', 
+      icon: Truck, 
+      href: '/tools/delivery', 
+      desc: 'Manage local delivery fleet and orders',
+      color: 'text-blue-600',
+      bg: 'bg-blue-50 dark:bg-blue-900/20'
+    },
+    { 
+      title: 'Smart Fitting Rooms', 
+      icon: Shirt, 
+      href: '/tools/fitting-room', 
+      desc: 'Fitting room occupancy and requests',
+      color: 'text-purple-600',
+      bg: 'bg-purple-50 dark:bg-purple-900/20'
+    },
     { 
       title: 'AR Wayfinder', 
       icon: Navigation, 
