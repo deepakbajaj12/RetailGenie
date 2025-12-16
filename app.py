@@ -67,7 +67,9 @@ except Exception as e:
     firebase = None
 
 # Enable CORS
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+# Allow localhost:3000 (local dev) and the Vercel deployment
+default_origins = "http://localhost:3000,https://retail-genie-ivory.vercel.app"
+cors_origins = os.getenv("CORS_ORIGINS", default_origins).split(",")
 CORS(app, origins=cors_origins, supports_credentials=True)
 
 # Health check endpoint
