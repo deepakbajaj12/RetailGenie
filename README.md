@@ -1,120 +1,163 @@
-# RetailGenie
+#  RetailGenie
 
-[![CI](https://github.com/deepakbajaj12/RetailGenie/actions/workflows/ci.yml/badge.svg)](https://github.com/deepakbajaj12/RetailGenie/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/deepakbajaj12/RetailGenie/branch/main/graph/badge.svg)](https://codecov.io/gh/deepakbajaj12/RetailGenie)
+[![CI Status](https://github.com/deepakbajaj12/RetailGenie/actions/workflows/ci.yml/badge.svg)](https://github.com/deepakbajaj12/RetailGenie/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-38bdf8)](https://tailwindcss.com/)
 
-Professional, full-stack retail analytics app with a Flask backend and Next.js frontend.
+**RetailGenie** is a next-generation **Retail Operating System** designed to modernize every aspect of the shopping experience. From AI-driven inventory management to futuristic biometric checkout, RetailGenie provides a comprehensive suite of 35+ tools for the modern retailer.
 
-## Quickstart
+Whether you are a developer looking to learn full-stack architecture or a business exploring the future of retail, this project serves as a robust, enterprise-grade reference implementation.
 
-### Backend (Windows PowerShell)
-```powershell
+---
+
+##  Features Overview
+
+RetailGenie is packed with over **35 advanced modules** categorized by their operational focus:
+
+###  Enterprise & Operations
+- **Smart Cart Fleet**: IoT dashboard for monitoring battery and location of smart carts.
+- **Dynamic Pricing Engine**: AI-driven real-time price optimization.
+- **Supply Chain Tower**: Global logistics tracking and risk management.
+- **Staff Management**: Shift scheduling and performance tracking.
+- **Vendor Portal**: Supplier management and order tracking.
+
+###  Customer Experience
+- **Live Stream Shopping**: Interactive video commerce platform.
+- **Virtual Concierge**: 1-on-1 video calls with product experts.
+- **Smart Fitting Rooms**: Occupancy tracking and 'Request Size' features.
+- **AR Wayfinder**: Augmented reality in-store navigation.
+- **Personal Stylist**: AI-powered outfit recommendations.
+
+###  Safety & Sensory
+- **Biometric Checkout**: Secure facial and palm recognition payment simulation.
+- **Sentiment Analysis**: Real-time store atmosphere and customer mood tracking.
+- **Emergency Command**: Centralized crisis response dashboard (Fire/Medical/Security).
+- **Cold Chain Guardian**: IoT temperature monitoring for perishables.
+- **Smart Waste Systems**: Sustainability and recycling tracking.
+
+###  Utilities & Tools
+- **POS System**: Full-featured Point of Sale interface.
+- **Self-Checkout Kiosk**: Customer-facing payment terminal.
+- **Barcode Generator**: Create custom SKUs and labels.
+- **Planogram Builder**: Visual store layout management.
+
+---
+
+##  Tech Stack
+
+### Frontend
+- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **State Management**: React Hooks (useState, useEffect)
+- **Visualization**: Custom SVG charts and heatmaps
+
+### Backend
+- **Framework**: [Flask](https://flask.palletsprojects.com/) (Python)
+- **Database**: Firebase / Firestore (NoSQL)
+- **AI/ML**: OpenAI Integration, Scikit-learn (for recommendations)
+- **Task Queue**: Celery + Redis
+- **Testing**: Pytest
+
+---
+
+##  Getting Started
+
+Follow these steps to get RetailGenie running on your local machine.
+
+### Prerequisites
+- **Node.js** (v18 or higher)
+- **Python** (v3.9 or higher)
+- **Git**
+
+### 1. Clone the Repository
+\\\ash
+git clone https://github.com/deepakbajaj12/RetailGenie.git
+cd RetailGenie
+\\\`n
+### 2. Setup Backend (Python)
+The backend handles API requests, AI processing, and database interactions.
+
+**Windows (PowerShell):**
+\\\powershell
 cd backend
-./scripts/start.ps1         # dev run (creates .venv, installs deps)
-# or
-./scripts/start_optimized.ps1
-# or
-./scripts/start_production.ps1
-```
-
-### Backend (macOS/Linux)
-```bash
+./scripts/start.ps1
+\\\`n
+**macOS / Linux:**
+\\\ash
 cd backend
-./scripts/start.sh          # or: python -m venv .venv && source .venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
-```
+\\\`n*The backend will start on \http://localhost:5000\*
 
-### Frontend (Next.js)
-```powershell
+### 3. Setup Frontend (Next.js)
+The frontend is the visual interface where you can interact with all the tools.
+
+\\\ash
 cd frontend
 npm install
 npm run dev
-# open http://localhost:3000
-```
+\\\`n*The frontend will start on \http://localhost:3000\*
 
-Create `frontend/.env.local` with:
-```
-NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
-```
+---
 
-### Environment Variables
-- Backend: copy `backend/.env.example` to `backend/.env` and set values.
-- Frontend: create `frontend/.env.local` (see above) or copy from example if present.
+##  Project Structure
 
-## Contributing & Security
-- See `CONTRIBUTING.md` for development workflow, testing, and style.
-- See `SECURITY.md` for reporting vulnerabilities.
+\\\`nRetailGenie/
+ backend/                # Flask API Server
+    app/                # Application logic (Routes, Models)
+    config/             # Configuration files
+    scripts/            # Startup and utility scripts
+    app.py              # Entry point
 
-## CI/CD
-- GitHub Actions runs code quality checks, tests (with coverage), security scans, and optional performance/load tests.
-- Coverage threshold: builds fail if coverage drops below 70% (see pytest `--cov-fail-under=70`).
+ frontend/               # Next.js Client Application
+    app/                # App Router pages
+       tools/          # The 35+ Feature Modules
+       page.tsx        # Home page
+    components/         # Reusable UI components
+    public/             # Static assets
 
-## Architecture
+ docs/                   # Documentation and Guides
+\\\`n
+---
 
-```mermaid
-flowchart LR
-	Client[Web/Client] -->|HTTP| API[(Flask App)]
-	subgraph Backend
-		API --> Routes[Blueprints & Controllers]
-		Routes --> Services[Utils & Business Logic]
-		Services --> Firebase[(Firestore/Firebase)]
-		Services --> Cache[(Redis)]
-	end
-	Monitoring[Swagger Docs / Metrics] --> API
-```
+##  Configuration
 
-## API Docs
-- Health: `GET /health`
-- Products: `GET /api/products`, `POST /api/products`, etc.
-- Swagger (standalone server): run `backend/monitoring/swagger_docs.py` and open `http://localhost:5002/docs/`.
+To enable full functionality (like AI features), you need to configure environment variables.
 
-### Base URLs
-- Backend API: `http://localhost:5000`
-- Frontend App: `http://localhost:3000`
+1.  **Backend**: Copy \ackend/.env.example\ to \ackend/.env\`n    \\\env
+    OPENAI_API_KEY=your_key_here
+    FLASK_ENV=development
+    \\\`n
+2.  **Frontend**: Create \rontend/.env.local\`n    \\\env
+    NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
+    \\\`n
+---
 
-### Troubleshooting
-- `net::ERR_CONNECTION_REFUSED`: ensure the backend is running and the frontend `.env.local` uses a full URL (`http://localhost:5000`).
-- `404 Not Found`: verify the path/method matches routes in `backend/app.py`.
-- `chrome-extension://invalid net::ERR_FAILED`: benign extension logs; unrelated to the app.
+##  Contributing
 
-### AI Endpoints
-- `POST /ai/summarize-feedback`
-	- Body: `{ "product_id": "<id>" }` or `{ "feedback": [{"rating": 5, "comment": "..."}] }`
-	- Uses OpenAI if `OPENAI_API_KEY` is set; otherwise returns a heuristic summary.
-- `POST /ai/generate-description`
-	- Body: `{ "name": "...", "category": "...", "features": ["..."], "tone": "concise|playful|technical" }`
-	- Returns a short marketing description. Configure model via `OPENAI_MODEL`.
+We welcome contributions! Whether you're fixing a bug or adding a new feature (maybe feature #36?), please follow these steps:
 
-#### Semantic Search & Recommendations
-- `POST /ai/index-products`
-	- Body (optional): `{ "products": [{ id, name, description, category, ... }] }`
-	- If not provided, tries to pull from `products` collection. Stores vectors in `backend/data/embeddings_index.json`.
-	- Requires `OPENAI_API_KEY` for real embeddings; falls back to zero vectors otherwise.
-- `POST /ai/semantic-search`
-	- Body: `{ "query": "text", "top_k": 5, "category": "optional" }`
-	- Returns similar products with cosine similarity scores.
-- `POST /ai/recommendations`
-	- Body: `{ "product_id": "..." }` or `{ "product": {...} }`
-	- Returns similar products in the same category ranked by vector similarity.
+1.  Fork the repository.
+2.  Create a new branch (\git checkout -b feature/AmazingFeature\).
+3.  Commit your changes (\git commit -m 'Add some AmazingFeature'\).
+4.  Push to the branch (\git push origin feature/AmazingFeature\).
+5.  Open a Pull Request.
 
-#### Weekly AI Insights
-- `POST /ai/insights`
-	- Body (optional): `{ sales: [...], inventory: [...], feedback: [...] }` else attempts to read from Firebase collections.
-	- Produces actionable weekly suggestions; uses LLM to summarize if available.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for more details on our code of conduct and development process.
 
-## Dev Container
-- Open in VS Code with Dev Containers; Python 3.12 and Redis are pre-wired.
-- Post-create installs deps and pre-commit automatically.
- - Frontend can be run locally in your host or via a separate Node dev container if desired.
+---
 
-## Embeddings Reindex
-- Local (SQLite default): `python backend/scripts/index_products.py --file backend/data/sample_products.json`
-- Force JSON store: `python backend/scripts/index_products.py --file backend/data/sample_products.json --store json`
-- CI: Nightly job `Nightly Embeddings Reindex` builds the index and uploads it as an artifact.
+##  License
 
-### Vector Store Backends
-- Default: SQLite file `backend/data/embeddings_index.sqlite` (set via `VECTOR_DB_PATH`).
-- Fallback: JSON file `backend/data/embeddings_index.json`.
-- Configure via env: `VECTOR_STORE=sqlite|json`.
-# RetailGenie
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<p align='center'>
+  Built with  by the RetailGenie Team
+</p>
