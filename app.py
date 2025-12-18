@@ -17,6 +17,8 @@ try:
     from backend.routes.predict_demand import predict_demand_bp
     from backend.routes.ai import ai_bp
     from backend.routes.analytics import analytics_bp
+    from backend.routes.auth import auth_bp
+    from backend.utils.email_service import mail
 except ImportError as e:
     print(f"Warning: Failed to import backend modules: {e}")
     # Define mocks if imports fail, to allow app to start (for debugging)
@@ -24,6 +26,8 @@ except ImportError as e:
     predict_demand_bp = None
     ai_bp = None
     analytics_bp = None
+    auth_bp = None
+    mail = None
 
 # Load environment variables
 load_dotenv()
@@ -58,6 +62,21 @@ if ai_bp:
     app.register_blueprint(ai_bp)
 if analytics_bp:
     app.register_blueprint(analytics_bp)
+if auth_bp:
+    app.register_blueprint(auth_bp)
+
+# Configure Mail
+if mail:
+    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+    app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+    app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'
+    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', app.config['MAIL_USERNAME'])
+    try:
+        mail.init_app(app)
+    except Exception as e:
+        logger.error(f"Failed to initialize mail: {e}")
 
 # Initialize Firebase
 try:
