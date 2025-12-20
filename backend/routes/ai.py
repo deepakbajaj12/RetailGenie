@@ -74,13 +74,30 @@ def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
 
     elif provider == "gemini":
         try:
-            model_name = os.getenv("GEMINI_MODEL", "gemini-pro")
+            # Default to gemini-1.5-flash which is stable and fast
+            model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
             model = genai.GenerativeModel(model_name)
             # Gemini doesn't have system prompts in the same way, usually prepended
             full_prompt = f"System: {system_prompt}\n\nUser: {user_prompt}"
             response = model.generate_content(full_prompt)
             return response.text
         except Exception as e:
+            # Fallback logic for Rate Limits (429) or Model Not Found (404)
+            error_str = str(e)
+            if "429" in error_str or "404" in error_str:
+                try:
+                    # Try a fallback model
+                    fallback_model = "gemini-1.5-flash"
+                    if model_name == fallback_model:
+                        fallback_model = "gemini-pro"
+                    
+                    print(f"⚠️ Gemini {model_name} failed ({error_str}). Retrying with {fallback_model}...")
+                    model = genai.GenerativeModel(fallback_model)
+                    response = model.generate_content(full_prompt)
+                    return response.text
+                except Exception as fallback_e:
+                    return f"Gemini error: {e}. Fallback failed: {fallback_e}"
+            
             return f"Gemini error: {e}"
 
     return "No LLM provider configured."
