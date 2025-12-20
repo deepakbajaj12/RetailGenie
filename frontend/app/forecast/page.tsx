@@ -45,32 +45,32 @@ export default function ForecastPage() {
           <TrendingUp className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Demand Forecasting</h1>
-          <p className="text-slate-500">Predict future inventory needs with AI</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Demand Forecasting</h1>
+          <p className="text-slate-500 dark:text-slate-400">Predict future inventory needs with AI</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Input Section */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <div className="flex items-center gap-2 mb-4 text-slate-900 font-semibold">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+            <div className="flex items-center gap-2 mb-4 text-slate-900 dark:text-white font-semibold">
               <Calculator className="h-5 w-5 text-blue-500" />
               <h2>Input Data</h2>
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Last 10 Days Sales
                 </label>
                 <textarea
                   value={inputs}
                   onChange={(e) => setInputs(e.target.value)}
-                  className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-sm h-32 resize-none bg-slate-50"
+                  className="w-full p-4 border dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-sm h-32 resize-none bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
                   placeholder="100, 120, 110, 130, ..."
                 />
-                <p className="text-xs text-slate-500 mt-2">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
                   Enter 10 comma-separated numbers representing daily sales units.
                 </p>
               </div>
@@ -112,8 +112,8 @@ export default function ForecastPage() {
 
         {/* Chart Section */}
         <div className="lg:col-span-2">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-[500px] flex flex-col">
-            <h3 className="text-lg font-bold text-slate-900 mb-6">Trend Analysis</h3>
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 h-[500px] flex flex-col">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Trend Analysis</h3>
             {chartData.length > 0 ? (
               <div className="flex-1 w-full min-w-0">
                 <ResponsiveContainer width="100%" height="100%">
@@ -157,7 +157,7 @@ export default function ForecastPage() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-100 rounded-xl">
+              <div className="flex-1 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 border-2 border-dashed border-slate-100 dark:border-slate-700 rounded-xl">
                 <TrendingUp className="h-12 w-12 mb-4 opacity-20" />
                 <p>Run a forecast to see the visualization</p>
               </div>
