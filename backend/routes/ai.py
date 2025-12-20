@@ -454,6 +454,10 @@ def chat_assistant():
         msg = user_message.lower()
         if "revenue" in msg:
             return jsonify({"reply": "Based on current data, total revenue is trending up by 12% this week."})
+        elif "sales" in msg:
+            return jsonify({"reply": "Sales have increased by 15% compared to last month. Top performing category: Electronics."})
+        elif "marketing" in msg:
+            return jsonify({"reply": "Consider running a promotion on slow-moving inventory to boost sales."})
         elif "stock" in msg or "inventory" in msg:
             return jsonify({"reply": "We have 5 items currently low in stock. Check the dashboard for details."})
         elif "hello" in msg or "hi" in msg:
