@@ -74,22 +74,19 @@ def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
 
     elif provider == "gemini":
         # List of models to try in order of preference/stability
-        # gemini-1.5-flash: Best balance of speed/cost/free-tier
-        # gemini-1.5-flash-latest: Alias for latest flash
-        # gemini-1.0-pro: Stable legacy model
-        # gemini-pro: Alias for 1.0-pro
         models_to_try = [
             os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
             "gemini-1.5-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-1.0-pro", 
+            "gemini-1.5-pro",
+            "gemini-1.0-pro",
             "gemini-pro"
         ]
         
         # Remove duplicates while preserving order
+        models_to_try = [m for m in models_to_try if m]
         models_to_try = list(dict.fromkeys(models_to_try))
         
-        last_error = None
+        errors = []
         
         for model_name in models_to_try:
             try:
@@ -101,12 +98,10 @@ def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
             except Exception as e:
                 error_str = str(e)
                 print(f"⚠️ Gemini {model_name} failed: {error_str}")
-                last_error = e
-                # If it's not a quota/not-found error, it might be a bad request, so maybe don't retry?
-                # But for now, we retry on everything to be safe.
+                errors.append(f"{model_name}: {error_str}")
                 continue
                 
-        return f"Gemini error: All models failed. Last error: {last_error}"
+        return f"Gemini error: All models failed. Details: {'; '.join(errors)}"
 
     return "No LLM provider configured."
 
