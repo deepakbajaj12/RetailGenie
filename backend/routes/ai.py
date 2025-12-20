@@ -86,10 +86,8 @@ def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
             error_str = str(e)
             if "429" in error_str or "404" in error_str:
                 try:
-                    # Try a fallback model
-                    fallback_model = "gemini-1.5-flash"
-                    if model_name == fallback_model:
-                        fallback_model = "gemini-pro"
+                    # Try a fallback model - gemini-pro is the most stable legacy model
+                    fallback_model = "gemini-pro"
                     
                     print(f"⚠️ Gemini {model_name} failed ({error_str}). Retrying with {fallback_model}...")
                     model = genai.GenerativeModel(fallback_model)
