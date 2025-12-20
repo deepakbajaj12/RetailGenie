@@ -73,30 +73,40 @@ def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
             return f"OpenAI error: {e}"
 
     elif provider == "gemini":
-        try:
-            # Default to gemini-1.5-flash which is stable and fast
-            model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
-            model = genai.GenerativeModel(model_name)
-            # Gemini doesn't have system prompts in the same way, usually prepended
-            full_prompt = f"System: {system_prompt}\n\nUser: {user_prompt}"
-            response = model.generate_content(full_prompt)
-            return response.text
-        except Exception as e:
-            # Fallback logic for Rate Limits (429) or Model Not Found (404)
-            error_str = str(e)
-            if "429" in error_str or "404" in error_str:
-                try:
-                    # Try a fallback model - gemini-pro is the most stable legacy model
-                    fallback_model = "gemini-pro"
-                    
-                    print(f"⚠️ Gemini {model_name} failed ({error_str}). Retrying with {fallback_model}...")
-                    model = genai.GenerativeModel(fallback_model)
-                    response = model.generate_content(full_prompt)
-                    return response.text
-                except Exception as fallback_e:
-                    return f"Gemini error: {e}. Fallback failed: {fallback_e}"
-            
-            return f"Gemini error: {e}"
+        # List of models to try in order of preference/stability
+        # gemini-1.5-flash: Best balance of speed/cost/free-tier
+        # gemini-1.5-flash-latest: Alias for latest flash
+        # gemini-1.0-pro: Stable legacy model
+        # gemini-pro: Alias for 1.0-pro
+        models_to_try = [
+            os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.0-pro", 
+            "gemini-pro"
+        ]
+        
+        # Remove duplicates while preserving order
+        models_to_try = list(dict.fromkeys(models_to_try))
+        
+        last_error = None
+        
+        for model_name in models_to_try:
+            try:
+                print(f"🤖 Attempting Gemini with model: {model_name}")
+                model = genai.GenerativeModel(model_name)
+                full_prompt = f"System: {system_prompt}\n\nUser: {user_prompt}"
+                response = model.generate_content(full_prompt)
+                return response.text
+            except Exception as e:
+                error_str = str(e)
+                print(f"⚠️ Gemini {model_name} failed: {error_str}")
+                last_error = e
+                # If it's not a quota/not-found error, it might be a bad request, so maybe don't retry?
+                # But for now, we retry on everything to be safe.
+                continue
+                
+        return f"Gemini error: All models failed. Last error: {last_error}"
 
     return "No LLM provider configured."
 
