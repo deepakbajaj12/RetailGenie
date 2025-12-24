@@ -46,6 +46,8 @@ def _get_llm_client():
     gemini_key = os.getenv("GEMINI_API_KEY")
     if gemini_key and genai:
         try:
+            if hasattr(genai, "__version__"):
+                print(f"Using google-generativeai version: {genai.__version__}")
             genai.configure(api_key=gemini_key)
             return "gemini", None
         except Exception:
@@ -77,6 +79,7 @@ def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
         models_to_try = [
             os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
             "gemini-1.5-flash",
+            "gemini-1.5-flash-latest",
             "gemini-1.5-pro",
             "gemini-1.0-pro",
             "gemini-pro"

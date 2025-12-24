@@ -139,4 +139,4 @@ wheel==0.45.1
 Flask-Mail
 PyJWT
 bcrypt
-google-generativeai
+google-generativeai>=0.8.3
