@@ -1,4 +1,6 @@
 import os
+import requests
+import json
 from datetime import datetime, timezone
 from typing import Dict, Any
 from flask import Blueprint, request, jsonify
@@ -56,6 +58,26 @@ def _get_llm_client():
     return None, None
 
 
+def _chat_complete_rest(api_key: str, model_name: str, system_prompt: str, user_prompt: str) -> str:
+    """Fallback to REST API if the SDK fails."""
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+    headers = {"Content-Type": "application/json"}
+    data = {
+        "contents": [{
+            "parts": [{"text": f"System: {system_prompt}\n\nUser: {user_prompt}"}]
+        }]
+    }
+    try:
+        response = requests.post(url, headers=headers, json=data, timeout=30)
+        if response.status_code == 200:
+            result = response.json()
+            return result.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+        else:
+            raise Exception(f"REST API Error {response.status_code}: {response.text}")
+    except Exception as e:
+        raise Exception(f"REST request failed: {str(e)}")
+
+
 def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
     provider, client = provider_info
 
@@ -90,6 +112,7 @@ def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
         models_to_try = list(dict.fromkeys(models_to_try))
         
         errors = []
+        gemini_key = os.getenv("GEMINI_API_KEY")
         
         for model_name in models_to_try:
             try:
@@ -100,8 +123,18 @@ def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
                 return response.text
             except Exception as e:
                 error_str = str(e)
-                print(f"⚠️ Gemini {model_name} failed: {error_str}")
-                errors.append(f"{model_name}: {error_str}")
+                print(f"⚠️ Gemini SDK {model_name} failed: {error_str}")
+                
+                # Try REST API fallback immediately if SDK fails with 404 or similar
+                if "404" in error_str or "not found" in error_str.lower():
+                    try:
+                        print(f"🔄 Attempting REST fallback for {model_name}")
+                        return _chat_complete_rest(gemini_key, model_name, system_prompt, user_prompt)
+                    except Exception as rest_e:
+                        print(f"⚠️ REST fallback failed: {rest_e}")
+                        errors.append(f"{model_name} (SDK+REST): {error_str} | {rest_e}")
+                else:
+                    errors.append(f"{model_name}: {error_str}")
                 continue
                 
         return f"Gemini error: All models failed. Details: {'; '.join(errors)}"
