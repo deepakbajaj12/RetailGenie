@@ -1,4 +1,5 @@
 import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -10,17 +11,19 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  {
+    ignores: ['.next', 'node_modules', 'dist', 'out', '.git'],
+  },
+  js.configs.recommended,
   ...compat.extends('next/core-web-vitals'),
   {
+    files: ['**/*.{js,jsx,ts,tsx}'],
     rules: {
       '@next/next/no-html-link-for-pages': 'off',
-      'no-unused-vars': ['warn', { args: 'none' }],
+      'no-unused-vars': ['warn', { args: 'none', caughtErrors: 'none' }],
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
     },
-  },
-  {
-    ignores: ['.next', 'node_modules', 'dist', 'out'],
   },
 ];
 
