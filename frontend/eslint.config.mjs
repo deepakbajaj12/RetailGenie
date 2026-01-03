@@ -1,26 +1,36 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals"),
   {
-    rules: {
-      "@next/next/no-html-link-for-pages": "off",
-      "no-unused-vars": ["warn", { args: "none" }],
-      "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "warn",
-    },
+    ignores: ['.next', 'node_modules', 'dist', 'out', '.git'],
   },
+  js.configs.recommended,
+  ...compat.extends('next/core-web-vitals'),
   {
-    ignores: [".next", "node_modules", "dist", "out"],
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    languageOptions: {
+      globals: {
+        React: 'readonly',
+      },
+    },
+    rules: {
+      '@next/next/no-html-link-for-pages': 'off',
+      'no-unused-vars': ['warn', { args: 'none', caughtErrors: 'none' }],
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      'react/no-unescaped-entities': 'off',
+      'no-useless-catch': 'warn',
+    },
   },
 ];
 
