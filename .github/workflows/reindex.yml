@@ -41,7 +41,7 @@ jobs:
           python scripts/index_products.py --file data/sample_products.json
 
       - name: Upload embeddings index artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: embeddings-index
           path: backend/data/embeddings_index.json
