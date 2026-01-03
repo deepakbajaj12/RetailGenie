@@ -186,7 +186,7 @@ jobs:
         fail_ci_if_error: false
 
     - name: Store coverage results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-${{ matrix.python-version }}
         path: backend/htmlcov/
@@ -229,7 +229,7 @@ jobs:
         fi
 
     - name: Upload security reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: security-reports
         path: |
@@ -369,7 +369,7 @@ jobs:
         locust -f tests/load/locustfile_simple.py --headless -u 5 -r 1 -t 30s --host=http://localhost:5000 --html=load_test_report.html
 
     - name: Upload load test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: load-test-report
         path: ./backend/load_test_report.html
