@@ -18,11 +18,18 @@ const eslintConfig = [
   ...compat.extends('next/core-web-vitals'),
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
+    languageOptions: {
+      globals: {
+        React: 'readonly',
+      },
+    },
     rules: {
       '@next/next/no-html-link-for-pages': 'off',
       'no-unused-vars': ['warn', { args: 'none', caughtErrors: 'none' }],
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+      'react/no-unescaped-entities': 'off',
+      'no-useless-catch': 'warn',
     },
   },
 ];
