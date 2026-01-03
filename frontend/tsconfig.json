@@ -18,9 +18,9 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "@/lib/*": ["./lib/*"],
+      "@/lib/api": ["./lib/api.ts"]
     },
     "incremental": true,
     "plugins": [
