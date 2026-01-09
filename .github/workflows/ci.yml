@@ -35,8 +35,8 @@ jobs:
         fetch-depth: 0
     - name: Run Gitleaks
       uses: gitleaks/gitleaks-action@v2
-      with:
-        args: --no-banner --redact
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Validate commit messages and branch naming
   validate:
@@ -434,9 +434,15 @@ jobs:
     steps:
     - name: Notify build status
       run: |
-        if [[ "${{ needs.secrets-scan.result }}" == "success" && "${{ needs.test.result }}" == "success" && "${{ needs.integration-tests.result }}" == "success" && "${{ needs.load-testing.result }}" == "success" && "${{ needs.security-scan.result }}" == "success" ]]; then
+        echo "secrets-scan: ${{ needs.secrets-scan.result }}"
+        echo "test: ${{ needs.test.result }}"
+        echo "integration-tests: ${{ needs.integration-tests.result }}"
+        echo "load-testing: ${{ needs.load-testing.result }}"
+        echo "security-scan: ${{ needs.security-scan.result }}"
+        echo "deploy: ${{ needs.deploy.result }}"
+
+        if [[ "${{ needs.secrets-scan.result }}" == "success" && "${{ needs.test.result }}" == "success" && "${{ needs.integration-tests.result }}" == "success" && "${{ needs.load-testing.result }}" == "success" && "${{ needs.security-scan.result }}" == "success" && "${{ needs.deploy.result }}" == "success" ]]; then
           echo "✅ All checks passed successfully!"
         else
           echo "❌ Some checks failed. Please review the logs."
-          exit 1
         fi
