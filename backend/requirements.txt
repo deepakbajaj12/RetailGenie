@@ -9,7 +9,7 @@ click==8.2.1
 coverage==7.9.1
 cryptography==45.0.4
 firebase-admin==6.9.0
-Flask==3.1.1
+Flask==3.1.2
 flask-cors==6.0.1
 Flask-Limiter==3.8.0
 google-api-core==2.25.1
@@ -72,7 +72,7 @@ safety==3.3.1
 bandit==1.8.0
 
 # API and Web Framework
-Flask==3.1.1
+Flask==3.1.2
 flask-cors==6.0.1
 Flask-Limiter==3.8.0
 
