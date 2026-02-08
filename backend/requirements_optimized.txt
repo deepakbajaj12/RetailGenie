@@ -25,8 +25,8 @@ google-cloud-storage==3.1.1
 google-crc32c==1.7.1
 google-resumable-media==2.7.2
 googleapis-common-protos==1.70.0
-grpcio==1.73.1
-grpcio-status==1.73.1
+grpcio==1.71.0
+grpcio-status==1.71.0
 gunicorn==23.0.0
 h11==0.16.0
 h2==4.2.0
@@ -48,7 +48,7 @@ ordered-set==4.1.0
 packaging==25.0
 pluggy==1.6.0
 proto-plus==1.26.1
-protobuf==6.31.1
+protobuf==5.29.5
 psutil==7.0.0
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
