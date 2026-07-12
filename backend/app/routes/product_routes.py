@@ -1,7 +1,7 @@
-from flask import Blueprint, jsonify, request
 import logging
 
 from controllers.product_controller import ProductController
+from flask import Blueprint, jsonify, request
 
 logger = logging.getLogger(__name__)
 product_bp = Blueprint("products", __name__)

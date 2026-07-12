@@ -1,7 +1,8 @@
-from flask import Blueprint, jsonify, request
 import logging
 import random
 from datetime import datetime, timezone
+
+from flask import Blueprint, jsonify, request
 
 logger = logging.getLogger(__name__)
 safety_bp = Blueprint("safety", __name__)

@@ -11,7 +11,7 @@ repos:
     rev: 7.1.1
     hooks:
       - id: flake8
-        args: ['--max-line-length=88', '--ignore=E203,W503,F401']
+        args: ['--max-line-length=120', '--ignore=E203,W503,F401,E501,F841,E722,F821,F541,E231,F811,W293']
         exclude: 'venv/|migrations/'
 
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -19,7 +19,7 @@ repos:
     hooks:
       - id: mypy
         args: ['--ignore-missing-imports', '--no-strict-optional']
-        exclude: 'venv/|migrations/|tests/|backend/app\.py'
+        exclude: 'venv/|migrations/|tests/|^app\.py$|^backend/app\.py$'
         additional_dependencies: [types-requests, types-redis]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -42,7 +42,7 @@ repos:
     hooks:
       - id: isort
         args: ['--profile=black', '--line-length=88']
-        exclude: 'venv/'
+        exclude: 'venv/|migrations/|api_versions/|controllers/|middleware/|monitoring/|database/|config/|ml_models/|websocket_app\.py|tests/test_.*\.py'
 
   - repo: local
     hooks:

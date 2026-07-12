@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify
 import random
 from datetime import datetime, timedelta
+
+from flask import Blueprint, jsonify
 
 analytics_bp = Blueprint("analytics", __name__)
 

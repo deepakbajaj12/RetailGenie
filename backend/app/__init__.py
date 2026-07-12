@@ -1,15 +1,18 @@
+import logging
 import os
 import sys
-import logging
+
+from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_cors import CORS
-from dotenv import load_dotenv
 
-# Ensure the app folder is in python path so imports like "from controllers.x import y" work
+# Ensure the app folder is in python path so imports
+# like "from controllers.x import y" work
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config.config import get_config  # noqa: E402
 from utils.firebase_utils import FirebaseUtils  # noqa: E402
+
+from config.config import get_config  # noqa: E402
 
 
 def create_app(config_class=None):
@@ -49,15 +52,15 @@ def create_app(config_class=None):
         app.logger.warning(f"Failed to initialize Mail: {e}")
 
     # Import and register blueprints
-    from routes.auth_routes import auth_bp
-    from routes.product_routes import product_bp
-    from routes.order_routes import order_bp
-    from routes.feedback_routes import feedback_bp
-    from routes.safety_routes import safety_bp
+    from routes.admin_routes import admin_bp
     from routes.ai_routes import ai_bp
     from routes.analytics_routes import analytics_bp
+    from routes.auth_routes import auth_bp
+    from routes.feedback_routes import feedback_bp
+    from routes.order_routes import order_bp
     from routes.predict_demand_routes import predict_demand_bp
-    from routes.admin_routes import admin_bp
+    from routes.product_routes import product_bp
+    from routes.safety_routes import safety_bp
 
     # Register blueprints with prefixes matching what the frontend expects
     app.register_blueprint(auth_bp, url_prefix="/api/auth")

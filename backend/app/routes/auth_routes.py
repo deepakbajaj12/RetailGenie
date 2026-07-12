@@ -1,7 +1,7 @@
-from flask import Blueprint, jsonify, request
 import logging
 
 from controllers.auth_controller import AuthController
+from flask import Blueprint, jsonify, request
 
 logger = logging.getLogger(__name__)
 auth_bp = Blueprint("auth", __name__)

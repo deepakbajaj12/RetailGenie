@@ -1,9 +1,10 @@
-import os
-import requests
 import json
+import os
 from datetime import datetime, timezone
-from typing import Dict, Any
-from flask import Blueprint, request, jsonify
+from typing import Any, Dict
+
+import requests
+from flask import Blueprint, jsonify, request
 
 try:
     from openai import OpenAI  # SDK v1.x
@@ -16,12 +17,12 @@ except Exception:
     genai = None
 
 from utils.firebase_utils import FirebaseUtils
-from utils.vector_store import upsert_embeddings as upsert_json
 from utils.vector_store import query_similar as query_json
+from utils.vector_store import upsert_embeddings as upsert_json
 
 try:
-    from utils.vector_store_sqlite import upsert_embeddings as upsert_sqlite
     from utils.vector_store_sqlite import query_similar as query_sqlite
+    from utils.vector_store_sqlite import upsert_embeddings as upsert_sqlite
 
     SQLITE_AVAILABLE = True
 except Exception:

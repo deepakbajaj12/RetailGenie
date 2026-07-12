@@ -59,7 +59,7 @@ def mock_firebase(app):
     firebase.db = Mock()
 
     def default_get_documents(collection, filters=None, *args, **kwargs):
-        from unittest.mock import Mock, MagicMock
+        from unittest.mock import MagicMock, Mock
 
         ret = firebase.get_documents.return_value
         if not isinstance(ret, (Mock, MagicMock)):
@@ -91,7 +91,7 @@ def mock_firebase(app):
         return []
 
     def default_get_document(collection, doc_id, *args, **kwargs):
-        from unittest.mock import Mock, MagicMock
+        from unittest.mock import MagicMock, Mock
 
         ret = firebase.get_document.return_value
         # Check if the return_value has been overridden
@@ -117,7 +117,7 @@ def mock_firebase(app):
         return None
 
     def default_query_documents(collection, field, op, value, limit=None):
-        from unittest.mock import Mock, MagicMock
+        from unittest.mock import MagicMock, Mock
 
         # 1. Fallback to overridden query_documents return value
         ret_q = firebase.query_documents.return_value
