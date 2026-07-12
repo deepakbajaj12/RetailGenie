@@ -1,4 +1,4 @@
-exclude: '^frontend/|^ml_models/|^docs/|venv/|migrations/|api_versions/|controllers/|middleware/|monitoring/|database/|config/|websocket_app\.py|tests/test_.*\.py|.*\.md$'
+exclude: 'frontend/|ml_models/|docs/|venv/|migrations/|api_versions/|controllers/|middleware/|monitoring/|database/|config/|websocket_app\.py|tests/test_.*\.py|.*\.md$'
 
 repos:
   - repo: https://github.com/psf/black
