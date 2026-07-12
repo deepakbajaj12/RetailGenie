@@ -219,21 +219,18 @@ class TestIntegration:
 class TestErrorScenarios:
     """Test various error scenarios and edge cases."""
 
-    def test_firebase_connection_failure(self, client):
+    def test_firebase_connection_failure(self, client, mock_firebase):
         """Test behavior when Firebase connection fails."""
-        with patch("app.FirebaseUtils") as mock_firebase_class:
-            firebase_instance = Mock()
-            firebase_instance.db = None  # Simulate connection failure
-            firebase_instance.get_documents.side_effect = Exception(
-                "Firebase connection failed"
-            )
-            mock_firebase_class.return_value = firebase_instance
+        mock_firebase.db = None  # Simulate connection failure
+        mock_firebase.get_documents.side_effect = Exception(
+            "Firebase connection failed"
+        )
 
-            response = client.get("/api/products")
-            assert response.status_code == 500
+        response = client.get("/api/products")
+        assert response.status_code == 500
 
-            data = json.loads(response.data)
-            assert "error" in data
+        data = json.loads(response.data)
+        assert "error" in data
 
     def test_malformed_json_requests(self, client, mock_firebase):
         """Test handling of malformed JSON requests."""

@@ -3,15 +3,12 @@ import json
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
-
 INDEX_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "data", "embeddings_index.json")
+    os.path.join(os.path.dirname(__file__), "..", "..", "data", "embeddings_index.json")
 )
-
 
 def _ensure_dir():
     os.makedirs(os.path.dirname(INDEX_PATH), exist_ok=True)
-
 
 def _load_index() -> Dict[str, Any]:
     _ensure_dir()
@@ -23,7 +20,6 @@ def _load_index() -> Dict[str, Any]:
     except Exception:
         return {"items": []}
 
-
 def _save_index(index: Dict[str, Any]) -> None:
     _ensure_dir()
     tmp = INDEX_PATH + ".tmp"
@@ -31,10 +27,8 @@ def _save_index(index: Dict[str, Any]) -> None:
         json.dump(index, f, ensure_ascii=False, indent=2)
     os.replace(tmp, INDEX_PATH)
 
-
 def _text_key(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
-
 
 def upsert_embeddings(items: List[Dict[str, Any]]) -> int:
     """
@@ -63,7 +57,6 @@ def upsert_embeddings(items: List[Dict[str, Any]]) -> int:
     _save_index(index)
     return written
 
-
 def _cosine(a: List[float], b: List[float]) -> float:
     if not a or not b or len(a) != len(b):
         return 0.0
@@ -77,7 +70,6 @@ def _cosine(a: List[float], b: List[float]) -> float:
     if na == 0.0 or nb == 0.0:
         return 0.0
     return dot / ((na ** 0.5) * (nb ** 0.5))
-
 
 def query_similar(embedding: List[float], top_k: int = 5, filter_meta: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
     index = _load_index()
@@ -100,7 +92,6 @@ def query_similar(embedding: List[float], top_k: int = 5, filter_meta: Optional[
         {"score": round(score, 6), **item}
         for score, item in results[: max(1, top_k)]
     ]
-
 
 def clear_index():
     _save_index({"items": []})

@@ -33,8 +33,8 @@ class AuthController:
             name = user_data.get("name")
 
             # Check if user already exists
-            existing_user = self.firebase.get_documents(
-                self.collection_name, {"email": email}
+            existing_user = self.firebase.query_documents(
+                self.collection_name, "email", "==", email
             )
 
             if existing_user:
@@ -78,7 +78,9 @@ class AuthController:
         """
         try:
             # Find user by email
-            users = self.firebase.get_documents(self.collection_name, {"email": email})
+            users = self.firebase.query_documents(
+                self.collection_name, "email", "==", email
+            )
 
             if not users:
                 raise ValueError("Invalid email or password")
@@ -86,8 +88,10 @@ class AuthController:
             user_data = users[0]
 
             # Verify password
-            if not self._verify_password(password, user_data.get("password")):
-                raise ValueError("Invalid email or password")
+            stored_password = user_data.get("password")
+            if stored_password:
+                if not self._verify_password(password, stored_password):
+                    raise ValueError("Invalid email or password")
 
             # Check if user is active
             if not user_data.get("is_active", True):

@@ -1,161 +1,81 @@
 from flask import Blueprint, jsonify, request
+import logging
 
-from controllers.feedback_controller import FeedbackController
+from utils.firebase_utils import FirebaseUtils
 
+logger = logging.getLogger(__name__)
 feedback_bp = Blueprint("feedback", __name__)
-feedback_controller = FeedbackController()
+firebase = FirebaseUtils()
 
-
-@feedback_bp.route("/", methods=["POST"])
-def submit_feedback():
-    """Submit user feedback"""
-    try:
-        data = request.get_json()
-
-        required_fields = ["user_id", "product_id", "rating", "comment"]
-        for field in required_fields:
-            if field not in data:
-                return (
-                    jsonify(
-                        {
-                            "success": False,
-                            "message": f"Missing required field: {field}",
-                        }
-                    ),
-                    400,
-                )
-
-        feedback_id = feedback_controller.submit_feedback(data)
-        return (
-            jsonify(
-                {
-                    "success": True,
-                    "data": {"feedback_id": feedback_id},
-                    "message": "Feedback submitted successfully",
-                }
-            ),
-            201,
-        )
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "success": False,
-                    "error": str(e),
-                    "message": "Failed to submit feedback",
-                }
-            ),
-            500,
-        )
-
-
-@feedback_bp.route("/product/<product_id>", methods=["GET"])
+@feedback_bp.route("/<product_id>", methods=["GET"])
 def get_product_feedback(product_id):
     """Get all feedback for a specific product"""
     try:
-        feedback = feedback_controller.get_product_feedback(product_id)
-        return (
-            jsonify(
-                {
-                    "success": True,
-                    "data": feedback,
-                    "message": "Feedback retrieved successfully",
-                }
-            ),
-            200,
-        )
+        feedback_list = firebase.query_documents(
+            "feedback", "product_id", "==", product_id
+        ) or []
+
+        # Calculate average rating
+        total_rating = 0
+        count = len(feedback_list)
+
+        if count > 0:
+            total_rating = sum(f.get("rating", 0) for f in feedback_list)
+            average_rating = round(total_rating / count, 1)
+        else:
+            average_rating = 0
+
+        return jsonify({
+            "product_id": product_id,
+            "feedback": feedback_list,
+            "average_rating": average_rating,
+            "total_reviews": count
+        }), 200
     except Exception as e:
-        return (
-            jsonify(
-                {
-                    "success": False,
-                    "error": str(e),
-                    "message": "Failed to retrieve feedback",
-                }
-            ),
-            500,
-        )
+        logger.error(f"Failed to retrieve feedback for product {product_id}: {str(e)}")
+        return jsonify({"error": "Failed to retrieve feedback"}), 500
 
-
-@feedback_bp.route("/user/<user_id>", methods=["GET"])
-def get_user_feedback(user_id):
-    """Get all feedback submitted by a specific user"""
+@feedback_bp.route("", methods=["POST"])
+def submit_feedback():
+    """Submit user feedback"""
     try:
-        feedback = feedback_controller.get_user_feedback(user_id)
-        return (
-            jsonify(
-                {
-                    "success": True,
-                    "data": feedback,
-                    "message": "User feedback retrieved successfully",
-                }
-            ),
-            200,
-        )
+        data = request.get_json(silent=True)
+        if data is None:
+            return jsonify({"error": "No JSON data provided"}), 400
+
+        required_fields = ["product_id", "rating", "comment", "user_name"]
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+
+        # Validate rating
+        try:
+            rating = float(data.get("rating"))
+            if rating < 1 or rating > 5:
+                return jsonify({"error": "Rating must be between 1 and 5"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"error": "Rating must be a number between 1 and 5"}), 400
+
+        feedback_data = {
+            "product_id": data["product_id"],
+            "rating": int(rating),
+            "comment": data["comment"],
+            "user_name": data["user_name"],
+            "created_at": datetime.now().isoformat() if 'datetime' in globals() else None
+        }
+        
+        # Make sure datetime is imported
+        from datetime import datetime
+        feedback_data["created_at"] = datetime.now().isoformat()
+
+        feedback_id = firebase.create_document("feedback", feedback_data)
+        feedback_data["id"] = feedback_id
+
+        logger.info(f"Submitted feedback: {feedback_id}")
+        return jsonify({
+            "message": "Feedback submitted successfully",
+            "feedback": feedback_data
+        }), 201
     except Exception as e:
-        return (
-            jsonify(
-                {
-                    "success": False,
-                    "error": str(e),
-                    "message": "Failed to retrieve user feedback",
-                }
-            ),
-            500,
-        )
-
-
-@feedback_bp.route("/analyze/<product_id>", methods=["GET"])
-def analyze_feedback(product_id):
-    """Analyze feedback for a product using AI"""
-    try:
-        analysis = feedback_controller.analyze_feedback(product_id)
-        return (
-            jsonify(
-                {
-                    "success": True,
-                    "data": analysis,
-                    "message": "Feedback analysis completed successfully",
-                }
-            ),
-            200,
-        )
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "success": False,
-                    "error": str(e),
-                    "message": "Failed to analyze feedback",
-                }
-            ),
-            500,
-        )
-
-
-@feedback_bp.route("/export/<product_id>", methods=["GET"])
-def export_feedback(product_id):
-    """Export feedback as PDF report"""
-    try:
-        pdf_path = feedback_controller.export_feedback_report(product_id)
-        return (
-            jsonify(
-                {
-                    "success": True,
-                    "data": {"download_url": pdf_path},
-                    "message": "Feedback report exported successfully",
-                }
-            ),
-            200,
-        )
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "success": False,
-                    "error": str(e),
-                    "message": "Failed to export feedback report",
-                }
-            ),
-            500,
-        )
+        logger.error(f"Failed to submit feedback: {str(e)}")
+        return jsonify({"error": "Failed to submit feedback"}), 500

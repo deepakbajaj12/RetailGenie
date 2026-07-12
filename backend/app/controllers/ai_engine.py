@@ -595,6 +595,17 @@ class AIEngine:
             logger.error(f"Error enhancing product data: {str(e)}")
             return product_data
 
+    def _extract_tags(self, text: str) -> List[str]:
+        """Extract simple tags/keywords from text"""
+        try:
+            import re
+            words = re.findall(r'\b\w{4,}\b', text.lower())
+            stop_words = {"this", "that", "with", "from", "your", "good", "great", "best", "test", "product", "features", "description", "details"}
+            tags = [w for w in words if w not in stop_words]
+            return list(set(tags))[:5]
+        except Exception:
+            return []
+
     # Helper methods for advanced AI functionality
 
     def _simple_moving_average_forecast(

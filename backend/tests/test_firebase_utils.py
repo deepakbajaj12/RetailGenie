@@ -31,7 +31,7 @@ class TestFirebaseUtils:
         mock_doc_ref = Mock()
 
         mock_db.collection.return_value = mock_collection
-        mock_collection.add.return_value = (mock_doc_ref, None)
+        mock_collection.add.return_value = (None, mock_doc_ref)
         mock_doc_ref.id = "test-doc-id"
         mock_firestore.return_value = mock_db
 
