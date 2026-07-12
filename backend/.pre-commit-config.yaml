@@ -18,7 +18,7 @@ repos:
     rev: v1.11.2
     hooks:
       - id: mypy
-        args: ['--ignore-missing-imports', '--no-strict-optional']
+        args: ['--ignore-missing-imports', '--no-strict-optional', '--exclude=backend/app.py']
         exclude: 'venv/|migrations/|tests/|^app\.py$|^backend/app\.py$'
         additional_dependencies: [types-requests, types-redis]
 
