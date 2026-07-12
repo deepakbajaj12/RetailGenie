@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 auth_bp = Blueprint("auth", __name__)
 auth_controller = AuthController()
 
+
 @auth_bp.route("/register", methods=["POST"])
 def register():
     """Register a new user"""
@@ -22,16 +23,22 @@ def register():
 
         result = auth_controller.register_user(data)
         # Frontend expects: { message, user, token }
-        return jsonify({
-            "message": "User registered successfully",
-            "user": result["user"],
-            "token": result["token"]
-        }), 201
+        return (
+            jsonify(
+                {
+                    "message": "User registered successfully",
+                    "user": result["user"],
+                    "token": result["token"],
+                }
+            ),
+            201,
+        )
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         logger.error(f"Registration failed: {str(e)}")
         return jsonify({"error": "Registration failed"}), 500
+
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
@@ -48,11 +55,16 @@ def login():
 
         result = auth_controller.login_user(data["email"], data["password"])
         # Frontend expects: { message, user, token }
-        return jsonify({
-            "message": "Login successful",
-            "user": result["user"],
-            "token": result["token"]
-        }), 200
+        return (
+            jsonify(
+                {
+                    "message": "Login successful",
+                    "user": result["user"],
+                    "token": result["token"],
+                }
+            ),
+            200,
+        )
     except ValueError as e:
         err_msg = str(e)
         if "Invalid email" in err_msg or "password" in err_msg:
@@ -61,6 +73,7 @@ def login():
     except Exception as e:
         logger.error(f"Login failed: {str(e)}")
         return jsonify({"error": "Login failed"}), 500
+
 
 @auth_bp.route("/logout", methods=["POST"])
 def logout():
@@ -75,6 +88,7 @@ def logout():
     except Exception as e:
         logger.error(f"Logout failed: {str(e)}")
         return jsonify({"error": "Logout failed"}), 500
+
 
 @auth_bp.route("/profile", methods=["GET"])
 def get_profile():
@@ -91,6 +105,7 @@ def get_profile():
     except Exception as e:
         logger.error(f"Failed to retrieve profile: {str(e)}")
         return jsonify({"error": "Failed to retrieve profile"}), 500
+
 
 @auth_bp.route("/profile", methods=["PUT"])
 def update_profile():

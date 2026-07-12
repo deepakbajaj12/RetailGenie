@@ -4,11 +4,15 @@ import sqlite3
 from typing import Any, Dict, List, Optional, Tuple
 
 DEFAULT_DB_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "data", "embeddings_index.sqlite")
+    os.path.join(
+        os.path.dirname(__file__), "..", "..", "data", "embeddings_index.sqlite"
+    )
 )
+
 
 def _get_db_path() -> str:
     return os.getenv("VECTOR_DB_PATH", DEFAULT_DB_PATH)
+
 
 def _connect() -> sqlite3.Connection:
     path = _get_db_path()
@@ -17,6 +21,7 @@ def _connect() -> sqlite3.Connection:
     conn.execute("PRAGMA journal_mode=WAL;")
     conn.execute("PRAGMA synchronous=NORMAL;")
     return conn
+
 
 def init_db() -> None:
     with _connect() as conn:
@@ -34,8 +39,10 @@ def init_db() -> None:
         )
         conn.commit()
 
+
 def _key_for(text: str) -> str:
     return f"k:{abs(hash(text))}"
+
 
 def upsert_embeddings(items: List[Dict[str, Any]]) -> int:
     """
@@ -72,6 +79,7 @@ def upsert_embeddings(items: List[Dict[str, Any]]) -> int:
         conn.commit()
         return written
 
+
 def _cosine(a: List[float], b: List[float]) -> float:
     if not a or not b or len(a) != len(b):
         return 0.0
@@ -84,7 +92,8 @@ def _cosine(a: List[float], b: List[float]) -> float:
         nb += y * y
     if na == 0.0 or nb == 0.0:
         return 0.0
-    return dot / ((na ** 0.5) * (nb ** 0.5))
+    return dot / ((na**0.5) * (nb**0.5))
+
 
 def query_similar(
     embedding: List[float],
@@ -100,7 +109,9 @@ def query_similar(
                 (filter_meta.get("category"),),
             )
         else:
-            cur.execute("SELECT key, id, text, embedding, category, name FROM embeddings")
+            cur.execute(
+                "SELECT key, id, text, embedding, category, name FROM embeddings"
+            )
             rows = cur.fetchall()
 
     results: List[Tuple[float, Dict[str, Any]]] = []
@@ -124,6 +135,5 @@ def query_similar(
         )
     results.sort(key=lambda x: x[0], reverse=True)
     return [
-        {"score": round(score, 6), **item}
-        for score, item in results[: max(1, top_k)]
+        {"score": round(score, 6), **item} for score, item in results[: max(1, top_k)]
     ]

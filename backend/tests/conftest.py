@@ -47,17 +47,20 @@ def mock_firebase(app):
     firebase.query_documents.side_effect = None
     firebase.update_document.side_effect = None
     firebase.delete_document.side_effect = None
-    
+
     # Reset overridden return values to clear pollution from previous tests
     from unittest.mock import MagicMock
+
     firebase.get_document.return_value = MagicMock()
     firebase.get_documents.return_value = MagicMock()
     firebase.query_documents.return_value = MagicMock()
 
     # Set up default mock responses
     firebase.db = Mock()
+
     def default_get_documents(collection, filters=None, *args, **kwargs):
         from unittest.mock import Mock, MagicMock
+
         ret = firebase.get_documents.return_value
         if not isinstance(ret, (Mock, MagicMock)):
             # Check if it was explicitly modified to a list or value
@@ -89,6 +92,7 @@ def mock_firebase(app):
 
     def default_get_document(collection, doc_id, *args, **kwargs):
         from unittest.mock import Mock, MagicMock
+
         ret = firebase.get_document.return_value
         # Check if the return_value has been overridden
         if not isinstance(ret, (Mock, MagicMock)):
@@ -96,10 +100,16 @@ def mock_firebase(app):
         if collection == "products" and doc_id in ["test-product-1", "test-product-2"]:
             return {
                 "id": doc_id,
-                "name": "Test Product 1" if doc_id == "test-product-1" else "Test Product 2",
+                "name": (
+                    "Test Product 1" if doc_id == "test-product-1" else "Test Product 2"
+                ),
                 "price": 29.99 if doc_id == "test-product-1" else 49.99,
                 "category": "Electronics" if doc_id == "test-product-1" else "Books",
-                "description": "Test product description" if doc_id == "test-product-1" else "Another test product",
+                "description": (
+                    "Test product description"
+                    if doc_id == "test-product-1"
+                    else "Another test product"
+                ),
                 "in_stock": True if doc_id == "test-product-1" else False,
                 "created_at": "2023-01-01T10:00:00Z",
                 "updated_at": "2023-01-01T10:00:00Z",
@@ -108,6 +118,7 @@ def mock_firebase(app):
 
     def default_query_documents(collection, field, op, value, limit=None):
         from unittest.mock import Mock, MagicMock
+
         # 1. Fallback to overridden query_documents return value
         ret_q = firebase.query_documents.return_value
         if not isinstance(ret_q, (Mock, MagicMock)):
@@ -115,7 +126,9 @@ def mock_firebase(app):
         # 2. Fallback to overridden get_documents return value
         ret = firebase.get_documents.return_value
         if not isinstance(ret, (Mock, MagicMock)) and isinstance(ret, list):
-            matched = [doc for doc in ret if isinstance(doc, dict) and doc.get(field) == value]
+            matched = [
+                doc for doc in ret if isinstance(doc, dict) and doc.get(field) == value
+            ]
             return matched
         return []
 
@@ -172,9 +185,9 @@ def integration_mock_firebase(app):
         results = []
         for doc in documents:
             doc_val = doc.get(field)
-            if op == '==' and doc_val == value:
+            if op == "==" and doc_val == value:
                 results.append(doc)
-            elif op == '!=' and doc_val != value:
+            elif op == "!=" and doc_val != value:
                 results.append(doc)
         return results
 

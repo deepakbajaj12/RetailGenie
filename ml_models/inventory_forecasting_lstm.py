@@ -10,14 +10,14 @@ import os
 # 📊 1. Generate Dummy Inventory Demand Data (simulate 100 days)
 np.random.seed(42)
 data = np.random.randint(50, 200, size=(100,))
-df = pd.DataFrame(data, columns=['demand'])
+df = pd.DataFrame(data, columns=["demand"])
 
 # 📏 2. Scale data between 0 and 1
 scaler = MinMaxScaler()
 scaled_data = scaler.fit_transform(df)
 
 # 💾 Save the scaler for API use
-scaler_path = os.path.join(os.path.dirname(__file__), 'scaler.save')
+scaler_path = os.path.join(os.path.dirname(__file__), "scaler.save")
 joblib.dump(scaler, scaler_path)
 print(f"✅ Scaler saved as {scaler_path}")
 
@@ -27,7 +27,7 @@ y = []
 window_size = 10
 
 for i in range(window_size, len(scaled_data)):
-    X.append(scaled_data[i - window_size:i, 0])
+    X.append(scaled_data[i - window_size : i, 0])
     y.append(scaled_data[i, 0])
 
 X, y = np.array(X), np.array(y)
@@ -40,9 +40,9 @@ model = Sequential()
 model.add(LSTM(50, return_sequences=False, input_shape=(X.shape[1], 1)))
 model.add(Dense(1))
 
-model.compile(optimizer='adam', loss='mean_squared_error')
+model.compile(optimizer="adam", loss="mean_squared_error")
 model.fit(X, y, epochs=30, batch_size=8)
-model_path = os.path.join(os.path.dirname(__file__), 'demand_model.h5')
+model_path = os.path.join(os.path.dirname(__file__), "demand_model.h5")
 model.save(model_path)
 print(f"✅ Model saved as {model_path}")
 
@@ -59,11 +59,11 @@ predicted_all = model.predict(X)
 actual_demand = scaler.inverse_transform(y.reshape(-1, 1))
 predicted_demand_all = scaler.inverse_transform(predicted_all)
 
-plt.plot(actual_demand, label='Actual Demand')
-plt.plot(predicted_demand_all, label='Predicted Demand')
-plt.title('Inventory Demand Forecasting')
-plt.xlabel('Days')
-plt.ylabel('Demand')
+plt.plot(actual_demand, label="Actual Demand")
+plt.plot(predicted_demand_all, label="Predicted Demand")
+plt.title("Inventory Demand Forecasting")
+plt.xlabel("Days")
+plt.ylabel("Demand")
 plt.legend()
 plt.grid(True)
 plt.show()

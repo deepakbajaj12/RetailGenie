@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 order_bp = Blueprint("orders", __name__)
 firebase = FirebaseUtils()
 
+
 @order_bp.route("", methods=["GET"])
 def get_orders():
     """Get all orders"""
@@ -19,6 +20,7 @@ def get_orders():
     except Exception as e:
         logger.error(f"Failed to retrieve orders: {str(e)}")
         return jsonify({"error": "Failed to retrieve orders"}), 500
+
 
 @order_bp.route("", methods=["POST"])
 def create_order():
@@ -48,12 +50,13 @@ def create_order():
         logger.error(f"Failed to create order: {str(e)}")
         return jsonify({"error": "Failed to create order"}), 500
 
+
 @order_bp.route("/<order_id>", methods=["PUT"])
 def update_order(order_id):
     """Update order status"""
     try:
         data = request.get_json(silent=True) or {}
-        
+
         # Verify order exists
         existing = firebase.get_document("orders", order_id)
         if not existing:
@@ -64,10 +67,10 @@ def update_order(order_id):
             update_data["status"] = data["status"]
 
         firebase.update_document("orders", order_id, update_data)
-        
+
         updated_order = firebase.get_document("orders", order_id)
         updated_order["id"] = order_id
-        
+
         logger.info(f"Updated order: {order_id}")
         return jsonify(updated_order), 200
     except Exception as e:

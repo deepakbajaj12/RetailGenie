@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 admin_bp = Blueprint("admin", __name__)
 firebase = FirebaseUtils()
 
+
 @admin_bp.route("/init-db", methods=["POST"])
 def init_database():
     """Initialize database with sample data"""
@@ -48,11 +49,16 @@ def init_database():
             created_products.append(product)
 
         logger.info("Database initialized with sample data")
-        return jsonify({
-            "message": "Database initialized successfully",
-            "products_created": len(created_products),
-            "products": created_products,
-        }), 201
+        return (
+            jsonify(
+                {
+                    "message": "Database initialized successfully",
+                    "products_created": len(created_products),
+                    "products": created_products,
+                }
+            ),
+            201,
+        )
     except Exception as e:
         logger.error(f"Error initializing database: {str(e)}")
         return jsonify({"error": "Failed to initialize database"}), 500

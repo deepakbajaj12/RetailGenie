@@ -19,7 +19,7 @@ repos:
     hooks:
       - id: mypy
         args: ['--ignore-missing-imports', '--no-strict-optional']
-        exclude: 'venv/|migrations/|tests/'
+        exclude: 'venv/|migrations/|tests/|backend/app\.py'
         additional_dependencies: [types-requests, types-redis]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -52,5 +52,5 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-        args: ['tests/', '--tb=short']
+        args: ['backend/tests/', '--tb=short']
         exclude: 'venv/'

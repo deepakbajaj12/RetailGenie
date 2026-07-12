@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 
 # Load environment variables
 BASE_DIR = Path(__file__).parent.parent
-load_dotenv(BASE_DIR / '.env')
+load_dotenv(BASE_DIR / ".env")
+
 
 class Config:
     """Base configuration class"""
@@ -18,12 +19,12 @@ class Config:
     # Basic Flask configuration
     SECRET_KEY = os.environ.get("SECRET_KEY") or "dev-secret-key-change-in-production"
     DEBUG = os.environ.get("FLASK_DEBUG", "False").lower() in ["true", "1", "yes"]
-    FLASK_ENV = os.environ.get('FLASK_ENV', 'development')
-    
+    FLASK_ENV = os.environ.get("FLASK_ENV", "development")
+
     # API Configuration
-    API_VERSION = '1.0.0'
-    API_TITLE = 'RetailGenie API'
-    API_DESCRIPTION = 'AI-powered retail management system'
+    API_VERSION = "1.0.0"
+    API_TITLE = "RetailGenie API"
+    API_DESCRIPTION = "AI-powered retail management system"
 
     # JWT Configuration
     JWT_SECRET_KEY = (

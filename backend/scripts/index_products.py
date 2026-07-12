@@ -9,8 +9,10 @@ except Exception:  # pragma: no cover
     OpenAI = None  # type: ignore
 
 from utils.vector_store import upsert_embeddings as upsert_json
+
 try:
     from utils.vector_store_sqlite import upsert_embeddings as upsert_sqlite
+
     SQLITE_AVAILABLE = True
 except Exception:
     upsert_sqlite = None  # type: ignore
@@ -50,19 +52,34 @@ def build_items(products: List[Dict[str, Any]], embeddings: List[List[float]]):
         desc = p.get("description", "")
         category = p.get("category", "Unknown")
         text = f"Name: {name}\nCategory: {category}\nDescription: {desc}"
-        items.append({
-            "id": pid,
-            "text": text,
-            "embedding": emb,
-            "metadata": {"category": category, "name": name},
-        })
+        items.append(
+            {
+                "id": pid,
+                "text": text,
+                "embedding": emb,
+                "metadata": {"category": category, "name": name},
+            }
+        )
     return items
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Index products into local vector store")
-    parser.add_argument("--file", type=str, default=os.path.join("data", "sample_products.json"), help="Path to products JSON file")
-    parser.add_argument("--store", type=str, choices=["sqlite", "json"], default=os.getenv("VECTOR_STORE", "sqlite"), help="Vector store backend")
+    parser = argparse.ArgumentParser(
+        description="Index products into local vector store"
+    )
+    parser.add_argument(
+        "--file",
+        type=str,
+        default=os.path.join("data", "sample_products.json"),
+        help="Path to products JSON file",
+    )
+    parser.add_argument(
+        "--store",
+        type=str,
+        choices=["sqlite", "json"],
+        default=os.getenv("VECTOR_STORE", "sqlite"),
+        help="Vector store backend",
+    )
     args = parser.parse_args()
 
     path = args.file
@@ -75,7 +92,10 @@ def main():
             products = products["products"]
 
     client = get_embeddings_client()
-    texts = [f"Name: {p.get('name','')}\nCategory: {p.get('category','Unknown')}\nDescription: {p.get('description','')}" for p in products]
+    texts = [
+        f"Name: {p.get('name','')}\nCategory: {p.get('category','Unknown')}\nDescription: {p.get('description','')}"
+        for p in products
+    ]
     embs = embed_texts(client, texts)
     items = build_items(products, embs)
     if args.store == "sqlite" and SQLITE_AVAILABLE and upsert_sqlite:

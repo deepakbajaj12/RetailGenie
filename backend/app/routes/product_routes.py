@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 product_bp = Blueprint("products", __name__)
 product_controller = ProductController()
 
+
 @product_bp.route("", methods=["GET"])
 def get_products():
     """Get all products with optional filters"""
@@ -17,6 +18,7 @@ def get_products():
     except Exception as e:
         logger.error(f"Failed to retrieve products: {str(e)}")
         return jsonify({"error": "Failed to retrieve products"}), 500
+
 
 @product_bp.route("/<product_id>", methods=["GET"])
 def get_product(product_id):
@@ -29,6 +31,7 @@ def get_product(product_id):
     except Exception as e:
         logger.error(f"Failed to retrieve product {product_id}: {str(e)}")
         return jsonify({"error": "Failed to retrieve product"}), 500
+
 
 @product_bp.route("", methods=["POST"])
 def create_product():
@@ -56,19 +59,21 @@ def create_product():
 
         # Create product (returns product ID)
         product_id = product_controller.create_product(data)
-        
+
         # Try to fetch the newly created product (contains AI enhanced fields)
         product = product_controller.get_product_by_id(product_id)
         if not product:
             # Fallback for static mock environments
             data["id"] = product_id
             from datetime import datetime, timezone
+
             data["created_at"] = datetime.now(timezone.utc).isoformat()
             product = data
         return jsonify(product), 201
     except Exception as e:
         logger.error(f"Failed to create product: {str(e)}")
         return jsonify({"error": "Failed to create product"}), 500
+
 
 @product_bp.route("/<product_id>", methods=["PUT"])
 def update_product(product_id):
@@ -77,12 +82,12 @@ def update_product(product_id):
         data = request.get_json(silent=True)
         if data is None:
             return jsonify({"error": "No JSON data provided"}), 400
-        
+
         # Verify product exists
         existing = product_controller.get_product_by_id(product_id)
         if not existing:
             return jsonify({"error": "Product not found"}), 404
-            
+
         if "price" in data:
             try:
                 data["price"] = float(data["price"])
@@ -101,6 +106,7 @@ def update_product(product_id):
         logger.error(f"Failed to update product {product_id}: {str(e)}")
         return jsonify({"error": "Failed to update product"}), 500
 
+
 @product_bp.route("/<product_id>", methods=["DELETE"])
 def delete_product(product_id):
     """Delete a product"""
@@ -118,6 +124,7 @@ def delete_product(product_id):
         logger.error(f"Failed to delete product {product_id}: {str(e)}")
         return jsonify({"error": "Failed to delete product"}), 500
 
+
 @product_bp.route("/search", methods=["POST"])
 def search_products():
     """Search products using AI-powered search"""
@@ -132,6 +139,7 @@ def search_products():
     except Exception as e:
         logger.error(f"Search failed: {str(e)}")
         return jsonify({"error": "Search failed"}), 500
+
 
 @product_bp.route("/recommendations", methods=["POST"])
 def get_recommendations():

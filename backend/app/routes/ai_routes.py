@@ -18,9 +18,11 @@ except Exception:
 from utils.firebase_utils import FirebaseUtils
 from utils.vector_store import upsert_embeddings as upsert_json
 from utils.vector_store import query_similar as query_json
+
 try:
     from utils.vector_store_sqlite import upsert_embeddings as upsert_sqlite
     from utils.vector_store_sqlite import query_similar as query_sqlite
+
     SQLITE_AVAILABLE = True
 except Exception:
     upsert_sqlite = None  # type: ignore
@@ -31,6 +33,7 @@ except Exception:
 def _use_sqlite_store() -> bool:
     pref = os.getenv("VECTOR_STORE", "sqlite").lower()
     return SQLITE_AVAILABLE and pref == "sqlite"
+
 
 ai_bp = Blueprint("ai", __name__)
 
@@ -58,20 +61,27 @@ def _get_llm_client():
     return None, None
 
 
-def _chat_complete_rest(api_key: str, model_name: str, system_prompt: str, user_prompt: str) -> str:
+def _chat_complete_rest(
+    api_key: str, model_name: str, system_prompt: str, user_prompt: str
+) -> str:
     """Fallback to REST API if the SDK fails."""
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
     data = {
-        "contents": [{
-            "parts": [{"text": f"System: {system_prompt}\n\nUser: {user_prompt}"}]
-        }]
+        "contents": [
+            {"parts": [{"text": f"System: {system_prompt}\n\nUser: {user_prompt}"}]}
+        ]
     }
     try:
         response = requests.post(url, headers=headers, json=data, timeout=30)
         if response.status_code == 200:
             result = response.json()
-            return result.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+            return (
+                result.get("candidates", [{}])[0]
+                .get("content", {})
+                .get("parts", [{}])[0]
+                .get("text", "")
+            )
         else:
             raise Exception(f"REST API Error {response.status_code}: {response.text}")
     except Exception as e:
@@ -103,15 +113,15 @@ def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
             "gemini-1.5-flash-latest",
             "gemini-1.5-pro",
             "gemini-1.0-pro",
-            "gemini-pro"
+            "gemini-pro",
         ]
-        
+
         models_to_try = [m for m in models_to_try if m]
         models_to_try = list(dict.fromkeys(models_to_try))
-        
+
         errors = []
         gemini_key = os.getenv("GEMINI_API_KEY")
-        
+
         for model_name in models_to_try:
             try:
                 print(f"🤖 Attempting Gemini with model: {model_name}")
@@ -122,18 +132,22 @@ def _chat_complete(provider_info, system_prompt: str, user_prompt: str) -> str:
             except Exception as e:
                 error_str = str(e)
                 print(f"⚠️ Gemini SDK {model_name} failed: {error_str}")
-                
+
                 if "404" in error_str or "not found" in error_str.lower():
                     try:
                         print(f"🔄 Attempting REST fallback for {model_name}")
-                        return _chat_complete_rest(gemini_key, model_name, system_prompt, user_prompt)
+                        return _chat_complete_rest(
+                            gemini_key, model_name, system_prompt, user_prompt
+                        )
                     except Exception as rest_e:
                         print(f"⚠️ REST fallback failed: {rest_e}")
-                        errors.append(f"{model_name} (SDK+REST): {error_str} | {rest_e}")
+                        errors.append(
+                            f"{model_name} (SDK+REST): {error_str} | {rest_e}"
+                        )
                 else:
                     errors.append(f"{model_name}: {error_str}")
                 continue
-                
+
         return f"Gemini error: All models failed. Details: {'; '.join(errors)}"
 
     return "No LLM provider configured."
@@ -148,9 +162,10 @@ def summarize_feedback():
     firebase = FirebaseUtils()
     if not feedback_items and product_id:
         try:
-            feedback_items = firebase.query_documents(
-                "feedback", "product_id", "==", product_id
-            ) or []
+            feedback_items = (
+                firebase.query_documents("feedback", "product_id", "==", product_id)
+                or []
+            )
         except Exception:
             feedback_items = []
 
@@ -208,7 +223,9 @@ def summarize_feedback():
         negatives = len([x for x in normalized if (x["rating"] or 0) <= 2])
         positives = len([x for x in normalized if (x["rating"] or 0) >= 4])
         sentiment = (
-            "negative" if negatives > positives else ("positive" if positives > negatives else "mixed")
+            "negative"
+            if negatives > positives
+            else ("positive" if positives > negatives else "mixed")
         )
         payload = {
             "summary": f"{total} feedback items analyzed. Avg rating ~ {avg_rating}. Sentiment: {sentiment}.",
@@ -255,7 +272,12 @@ def generate_description():
         "Return only the description text."
     )
     content = _chat_complete(provider_info, system_prompt, user_prompt)
-    return jsonify({"description": content, "model": os.getenv("OPENAI_MODEL", "gpt-4o-mini")}), 200
+    return (
+        jsonify(
+            {"description": content, "model": os.getenv("OPENAI_MODEL", "gpt-4o-mini")}
+        ),
+        200,
+    )
 
 
 def _get_embeddings_client():
@@ -303,7 +325,9 @@ def index_products():
 
     client = _get_embeddings_client()
     texts = [t for _, t, _ in to_index]
-    embeddings = _embed_texts(client, texts) if client else [[0.0] * 1536 for _ in texts]
+    embeddings = (
+        _embed_texts(client, texts) if client else [[0.0] * 1536 for _ in texts]
+    )
 
     items = []
     for (pid, text, meta), emb in zip(to_index, embeddings):
@@ -359,10 +383,18 @@ def recommendations():
     base_emb = _embed_texts(client, [base_text])[0] if client else [0.0] * 1536
 
     if _use_sqlite_store() and query_sqlite:
-        hits = query_sqlite(base_emb, top_k=int(data.get("top_k", 5)), filter_meta={"category": category})
+        hits = query_sqlite(
+            base_emb,
+            top_k=int(data.get("top_k", 5)),
+            filter_meta={"category": category},
+        )
     else:
-        hits = query_json(base_emb, top_k=int(data.get("top_k", 5)), filter_meta={"category": category})
-    
+        hits = query_json(
+            base_emb,
+            top_k=int(data.get("top_k", 5)),
+            filter_meta={"category": category},
+        )
+
     pid = product.get("id") or product.get("_id") or product.get("sku")
     filtered = [h for h in hits if h.get("id") != pid]
     return jsonify({"recommendations": filtered}), 200
@@ -392,21 +424,27 @@ def ai_insights():
         pid = s.get("product_id")
         if not pid:
             continue
-        d = by_pid.setdefault(pid, {"units": 0, "revenue": 0.0, "stock": None, "ratings": []})
+        d = by_pid.setdefault(
+            pid, {"units": 0, "revenue": 0.0, "stock": None, "ratings": []}
+        )
         d["units"] += int(s.get("units", 0))
         d["revenue"] += float(s.get("revenue", 0))
     for i in inv or []:
         pid = i.get("product_id")
         if not pid:
             continue
-        d = by_pid.setdefault(pid, {"units": 0, "revenue": 0.0, "stock": None, "ratings": []})
+        d = by_pid.setdefault(
+            pid, {"units": 0, "revenue": 0.0, "stock": None, "ratings": []}
+        )
         d["stock"] = int(i.get("stock", 0))
         d["reorder_point"] = int(i.get("reorder_point", 0))
     for f in fb or []:
         pid = f.get("product_id")
         if not pid:
             continue
-        d = by_pid.setdefault(pid, {"units": 0, "revenue": 0.0, "stock": None, "ratings": []})
+        d = by_pid.setdefault(
+            pid, {"units": 0, "revenue": 0.0, "stock": None, "ratings": []}
+        )
         if f.get("rating") is not None:
             try:
                 d["ratings"].append(int(f.get("rating")))
@@ -415,7 +453,11 @@ def ai_insights():
 
     actions = []
     for pid, stats in by_pid.items():
-        avg_rating = round(sum(stats["ratings"]) / max(1, len(stats["ratings"])), 2) if stats["ratings"] else None
+        avg_rating = (
+            round(sum(stats["ratings"]) / max(1, len(stats["ratings"])), 2)
+            if stats["ratings"]
+            else None
+        )
         stock = stats.get("stock")
         reorder = stats.get("reorder_point", 0)
         note = []
@@ -427,61 +469,93 @@ def ai_insights():
             note.append("Top seller: consider upsell/bundle")
         if not note:
             note.append("Monitor performance")
-        actions.append({
-            "product_id": pid,
-            "units": stats["units"],
-            "revenue": round(stats["revenue"], 2),
-            "avg_rating": avg_rating,
-            "stock": stock,
-            "recommendations": note,
-        })
+        actions.append(
+            {
+                "product_id": pid,
+                "units": stats["units"],
+                "revenue": round(stats["revenue"], 2),
+                "avg_rating": avg_rating,
+                "stock": stock,
+                "recommendations": note,
+            }
+        )
 
     provider_info = _get_llm_client()
     summary = None
     if provider_info[0]:
         import json as _json
+
         sys_prompt = "Summarize weekly retail insights into 5-8 concise bullets."
         usr_prompt = f"Data: {_json.dumps(actions)[:6000]}"
         summary = _chat_complete(provider_info, sys_prompt, usr_prompt)
 
-    return jsonify({
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "actions": actions,
-        "summary": summary,
-    }), 200
+    return (
+        jsonify(
+            {
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "actions": actions,
+                "summary": summary,
+            }
+        ),
+        200,
+    )
 
 
 @ai_bp.route("/ai/chat", methods=["POST"])
 def chat_assistant():
     data = request.get_json(silent=True) or {}
     user_message = data.get("message", "")
-    
+
     if not user_message:
         return jsonify({"error": "Message is required"}), 400
 
     provider_info = _get_llm_client()
-    
+
     if not provider_info[0]:
         msg = user_message.lower()
         if "revenue" in msg:
-            return jsonify({"reply": "Based on current data, total revenue is trending up by 12% this week."})
+            return jsonify(
+                {
+                    "reply": "Based on current data, total revenue is trending up by 12% this week."
+                }
+            )
         elif "sales" in msg:
-            return jsonify({"reply": "Sales have increased by 15% compared to last month. Top performing category: Electronics."})
+            return jsonify(
+                {
+                    "reply": "Sales have increased by 15% compared to last month. Top performing category: Electronics."
+                }
+            )
         elif "marketing" in msg:
-            return jsonify({"reply": "Consider running a promotion on slow-moving inventory to boost sales."})
+            return jsonify(
+                {
+                    "reply": "Consider running a promotion on slow-moving inventory to boost sales."
+                }
+            )
         elif "stock" in msg or "inventory" in msg:
-            return jsonify({"reply": "We have 5 items currently low in stock. Check the dashboard for details."})
+            return jsonify(
+                {
+                    "reply": "We have 5 items currently low in stock. Check the dashboard for details."
+                }
+            )
         elif "hello" in msg or "hi" in msg:
-            return jsonify({"reply": "Hello! I'm RetailGenie. Ask me about sales, inventory, or product performance."})
+            return jsonify(
+                {
+                    "reply": "Hello! I'm RetailGenie. Ask me about sales, inventory, or product performance."
+                }
+            )
         else:
-            return jsonify({"reply": "I'm running in offline mode. Configure OpenAI or Gemini API key for full intelligence."})
+            return jsonify(
+                {
+                    "reply": "I'm running in offline mode. Configure OpenAI or Gemini API key for full intelligence."
+                }
+            )
 
     system_prompt = (
         "You are RetailGenie, an expert retail analytics assistant. "
         "Answer questions about store performance, inventory management, and retail strategy. "
         "Be professional, concise, and helpful."
     )
-    
+
     reply = _chat_complete(provider_info, system_prompt, user_message)
     return jsonify({"reply": reply})
 
@@ -493,15 +567,17 @@ def get_recommendations_endpoint(product_id):
         firebase = FirebaseUtils()
         product = firebase.get_document("products", product_id)
         all_products = firebase.get_documents("products")
-        
+
         if not product:
             # Fallback for integration tests that request nonexistent product IDs
             recommendations = [p for p in all_products if p.get("id") != product_id]
             return jsonify(recommendations), 200
 
         recommendations = [
-            p for p in all_products 
-            if p.get("category") == product.get("category") and p.get("id") != product_id
+            p
+            for p in all_products
+            if p.get("category") == product.get("category")
+            and p.get("id") != product_id
         ]
         return jsonify(recommendations), 200
     except Exception as e:
