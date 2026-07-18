@@ -76,3 +76,19 @@ def update_order(order_id):
     except Exception as e:
         logger.error(f"Failed to update order {order_id}: {str(e)}")
         return jsonify({"error": "Failed to update order"}), 500
+
+
+@order_bp.route("/<order_id>", methods=["DELETE"])
+def delete_order(order_id):
+    """Delete an order"""
+    try:
+        existing = firebase.get_document("orders", order_id)
+        if not existing:
+            return jsonify({"error": "Order not found"}), 404
+
+        firebase.delete_document("orders", order_id)
+        logger.info(f"Deleted order: {order_id}")
+        return jsonify({"message": "Order deleted successfully"}), 200
+    except Exception as e:
+        logger.error(f"Failed to delete order {order_id}: {str(e)}")
+        return jsonify({"error": "Failed to delete order"}), 500

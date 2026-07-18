@@ -2,8 +2,15 @@ import json
 import logging
 from datetime import datetime
 
-import openai
-import speech_recognition as sr
+try:
+    import openai
+except ImportError:
+    openai = None  # type: ignore[assignment]
+
+try:
+    import speech_recognition as sr
+except ImportError:
+    sr = None  # type: ignore[assignment]
 
 from controllers.ai_engine import AIEngine
 from utils.email_utils import EmailUtils

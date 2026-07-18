@@ -34,33 +34,22 @@ def create_app(config_class=None):
         format="[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
     )
 
-    # Initialize Mail if configured
-    try:
-        from utils.email_utils import mail
-
-        # Configure SMTP settings
-        app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
-        app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT", 587))
-        app.config["MAIL_USE_TLS"] = os.getenv("MAIL_USE_TLS", "True") == "True"
-        app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
-        app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
-        app.config["MAIL_DEFAULT_SENDER"] = os.getenv(
-            "MAIL_DEFAULT_SENDER", app.config["MAIL_USERNAME"]
-        )
-        mail.init_app(app)
-    except Exception as e:
-        app.logger.warning(f"Failed to initialize Mail: {e}")
+    # Email is handled via utils.email_utils.EmailUtils (raw SMTP) — no Flask-Mail init needed.
 
     # Import and register blueprints
     from routes.admin_routes import admin_bp
+    from routes.ai_assistant_routes import ai_assistant_bp
     from routes.ai_routes import ai_bp
     from routes.analytics_routes import analytics_bp
     from routes.auth_routes import auth_bp
     from routes.feedback_routes import feedback_bp
+    from routes.inventory_routes import inventory_bp
     from routes.order_routes import order_bp
     from routes.predict_demand_routes import predict_demand_bp
+    from routes.pricing_routes import pricing_bp
     from routes.product_routes import product_bp
     from routes.safety_routes import safety_bp
+    from routes.supplier_routes import supplier_bp
 
     # Register blueprints with prefixes matching what the frontend expects
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -72,6 +61,11 @@ def create_app(config_class=None):
     app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
     app.register_blueprint(predict_demand_bp)  # path is /predict-demand
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
+    # Previously orphaned blueprints — now registered
+    app.register_blueprint(inventory_bp, url_prefix="/api/inventory")
+    app.register_blueprint(ai_assistant_bp, url_prefix="/api/assistant")
+    app.register_blueprint(pricing_bp, url_prefix="/api/pricing")
+    app.register_blueprint(supplier_bp, url_prefix="/api/suppliers")
 
     @app.route("/", methods=["GET"])
     def home():
