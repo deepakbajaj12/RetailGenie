@@ -1,33 +1,46 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Smile, Frown, Meh, Activity, Users, Camera, BarChart3 } from 'lucide-react'
+import { getStoreSentiment } from '@/lib/api'
 
 export default function SentimentAnalysisPage() {
   const [overallMood, setOverallMood] = useState(78) // 0-100
+  const [moodLabel, setMoodLabel] = useState('Happy')
+  const [activeShopers, setActiveShoppers] = useState(42)
   const [faces, setFaces] = useState([
     { id: 1, x: 20, y: 30, mood: 'Happy', score: 0.9, age: '25-34' },
     { id: 2, x: 60, y: 45, mood: 'Neutral', score: 0.5, age: '45-54' },
     { id: 3, x: 40, y: 70, mood: 'Happy', score: 0.8, age: '18-24' },
   ])
 
-  // Simulate live analysis
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Update overall mood slightly
+  const fetchSentiment = useCallback(async () => {
+    try {
+      const data = await getStoreSentiment()
+      // Map overall_score (-1.0 to 1.0) to 0-100 scale
+      const score100 = Math.round(((data.overall_score + 1) / 2) * 100)
+      setOverallMood(score100)
+      setMoodLabel(data.mood)
+      setActiveShoppers(data.active_shoppers)
+    } catch {
+      // Fallback: animate mood slightly
       setOverallMood(prev => Math.max(0, Math.min(100, prev + (Math.random() - 0.5) * 5)))
-
-      // Move faces and change expressions randomly
       setFaces(prev => prev.map(face => ({
         ...face,
         x: Math.max(10, Math.min(90, face.x + (Math.random() - 0.5) * 10)),
         y: Math.max(10, Math.min(90, face.y + (Math.random() - 0.5) * 10)),
         mood: Math.random() > 0.8 ? (Math.random() > 0.5 ? 'Happy' : 'Neutral') : face.mood,
-        score: Math.random()
+        score: Math.max(0, Math.min(1, face.score + (Math.random() - 0.5) * 0.2))
       })))
-    }, 2000)
-    return () => clearInterval(interval)
+    }
   }, [])
+
+  // Fetch immediately then poll every 5 seconds
+  useEffect(() => {
+    fetchSentiment()
+    const interval = setInterval(fetchSentiment, 5000)
+    return () => clearInterval(interval)
+  }, [fetchSentiment])
 
   const getMoodColor = (mood: string) => {
     if (mood === 'Happy') return 'text-green-500 border-green-500 bg-green-500/20'

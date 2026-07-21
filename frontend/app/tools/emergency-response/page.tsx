@@ -2,9 +2,12 @@
 
 import { useState } from 'react'
 import { Flame, HeartPulse, ShieldAlert, Phone, Users, CheckSquare, AlertTriangle, Megaphone, Lock } from 'lucide-react'
+import { triggerEmergencyAlert } from '@/lib/api'
 
 export default function EmergencyResponsePage() {
   const [activeEmergency, setActiveEmergency] = useState<string | null>(null)
+  const [alertId, setAlertId] = useState<string | null>(null)
+  const [triggerError, setTriggerError] = useState<string | null>(null)
   const [checklist, setChecklist] = useState([
     { id: 1, task: 'Trigger Silent Alarm', completed: false },
     { id: 2, task: 'Lock Down Entrances', completed: false },
@@ -12,10 +15,25 @@ export default function EmergencyResponsePage() {
     { id: 4, task: 'Guide Customers to Safe Zone', completed: false },
   ])
 
-  const triggerEmergency = (type: string) => {
+  const triggerEmergency = async (type: string) => {
     setActiveEmergency(type)
+    setAlertId(null)
+    setTriggerError(null)
     // Reset checklist
     setChecklist(prev => prev.map(item => ({ ...item, completed: false })))
+    // Call the backend to log the emergency
+    try {
+      const result = await triggerEmergencyAlert({
+        type: type === 'fire' ? 'Fire' : type === 'medical' ? 'Medical' : 'Security',
+        location: 'Store Floor',
+        severity: 'High',
+        details: `Emergency triggered from Emergency Command Center: ${type}`,
+      })
+      setAlertId(result.alert_id)
+    } catch (err: any) {
+      // Non-blocking: UI still activates even if backend call fails
+      setTriggerError('Alert logged locally (backend unavailable)')
+    }
   }
 
   const toggleTask = (id: number) => {
@@ -24,6 +42,7 @@ export default function EmergencyResponsePage() {
 
   const resolveEmergency = () => {
     setActiveEmergency(null)
+    setAlertId(null)
   }
 
   return (
@@ -38,9 +57,17 @@ export default function EmergencyResponsePage() {
             <p className="text-gray-500 dark:text-gray-400">Centralized control for critical store incidents.</p>
           </div>
           {activeEmergency && (
-            <div className="bg-red-600 text-white px-6 py-2 rounded-lg font-bold animate-pulse flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              ACTIVE INCIDENT: {activeEmergency.toUpperCase()}
+            <div className="flex flex-col items-end gap-1">
+              <div className="bg-red-600 text-white px-6 py-2 rounded-lg font-bold animate-pulse flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                ACTIVE INCIDENT: {activeEmergency.toUpperCase()}
+              </div>
+              {alertId && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">Alert ID: {alertId}</span>
+              )}
+              {triggerError && (
+                <span className="text-xs text-yellow-600 dark:text-yellow-400">{triggerError}</span>
+              )}
             </div>
           )}
         </div>

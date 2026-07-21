@@ -1,31 +1,59 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Trash2, Recycle, Leaf, AlertTriangle, CheckCircle, Truck, RefreshCw } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Trash2, AlertTriangle, CheckCircle, Truck } from 'lucide-react'
+import { getWasteMetrics, type WasteMetric } from '@/lib/api'
+
+type Bin = {
+  id: string
+  location: string
+  type: string
+  fill: number
+  status: string
+}
+
+const DEFAULT_BINS: Bin[] = [
+  { id: 'B-01', location: 'Food Court', type: 'Compost', fill: 85, status: 'Critical' },
+  { id: 'B-02', location: 'Entrance', type: 'Recycling', fill: 45, status: 'Normal' },
+  { id: 'B-03', location: 'Aisle 5', type: 'Landfill', fill: 20, status: 'Normal' },
+  { id: 'B-04', location: 'Backroom', type: 'Cardboard', fill: 92, status: 'Critical' },
+  { id: 'B-05', location: 'Restroom', type: 'Landfill', fill: 60, status: 'Warning' },
+]
+
+function mapMetricToBin(metric: WasteMetric): Bin {
+  const fill = metric.fill_level
+  const status = fill > 90 ? 'Critical' : fill > 70 ? 'Warning' : 'Normal'
+  return { id: metric.id, location: metric.location, type: metric.category, fill, status }
+}
 
 export default function SmartWastePage() {
-  const [bins, setBins] = useState([
-    { id: 'B-01', location: 'Food Court', type: 'Compost', fill: 85, status: 'Critical' },
-    { id: 'B-02', location: 'Entrance', type: 'Recycling', fill: 45, status: 'Normal' },
-    { id: 'B-03', location: 'Aisle 5', type: 'Landfill', fill: 20, status: 'Normal' },
-    { id: 'B-04', location: 'Backroom', type: 'Cardboard', fill: 92, status: 'Critical' },
-    { id: 'B-05', location: 'Restroom', type: 'Landfill', fill: 60, status: 'Warning' },
-  ])
+  const [bins, setBins] = useState<Bin[]>(DEFAULT_BINS)
+  const [liveMode, setLiveMode] = useState(false)
 
-  // Simulate fill levels increasing
+  const fetchMetrics = useCallback(async () => {
+    try {
+      const data = await getWasteMetrics()
+      if (data && data.length > 0) {
+        setBins(data.map(mapMetricToBin))
+        setLiveMode(true)
+      }
+    } catch {
+      // Fallback: simulate fill levels increasing
+      if (!liveMode) {
+        setBins(prev => prev.map(bin => {
+          const newFill = Math.min(100, bin.fill + Math.random() * 2)
+          const status = newFill > 90 ? 'Critical' : newFill > 70 ? 'Warning' : 'Normal'
+          return { ...bin, fill: newFill, status }
+        }))
+      }
+    }
+  }, [liveMode])
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setBins(prev => prev.map(bin => {
-        const newFill = Math.min(100, bin.fill + Math.random() * 2)
-        let status = 'Normal'
-        if (newFill > 90) status = 'Critical'
-        else if (newFill > 70) status = 'Warning'
-        
-        return { ...bin, fill: newFill, status }
-      }))
-    }, 3000)
+    fetchMetrics()
+    const interval = setInterval(fetchMetrics, 5000)
     return () => clearInterval(interval)
-  }, [])
+  }, [fetchMetrics])
 
   const emptyBin = (id: string) => {
     setBins(prev => prev.map(bin => bin.id === id ? { ...bin, fill: 0, status: 'Normal' } : bin))

@@ -4,9 +4,20 @@ const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'
 
 export const api = axios.create({ baseURL })
 
+// Attach the JWT token from localStorage to every outgoing request automatically
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
+  }
+  return config
+})
+
 function handleError(error: unknown): never {
-  const err = error as AxiosError<{ message?: string }>
-  const message = err.response?.data?.message || err.message || 'Request failed'
+  const err = error as AxiosError<{ message?: string; error?: string }>
+  const message = err.response?.data?.error || err.response?.data?.message || err.message || 'Request failed'
   throw new Error(message)
 }
 
@@ -164,6 +175,14 @@ export async function updateOrder(id: string, input: Partial<Order>): Promise<Or
   }
 }
 
+export async function deleteOrder(id: string): Promise<void> {
+  try {
+    await api.delete(`/api/orders/${id}`)
+  } catch (error) {
+    handleError(error)
+  }
+}
+
 export type User = {
   id: string
   email: string
@@ -286,4 +305,188 @@ export async function getWasteMetrics(): Promise<WasteMetric[]> {
     handleError(error)
   }
 }
-
+
+// --- Supplier Management ---
+
+export type Supplier = {
+  id?: string
+  name: string
+  contact_person?: string
+  email?: string
+  phone?: string
+  address?: string
+  status?: 'Active' | 'Inactive'
+  rating?: number
+  category?: string
+}
+
+export async function getSuppliers(): Promise<Supplier[]> {
+  try {
+    const res = await api.get('/api/suppliers')
+    return Array.isArray(res.data.suppliers) ? res.data.suppliers : (Array.isArray(res.data) ? res.data : [])
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+export async function createSupplier(input: Supplier): Promise<Supplier> {
+  try {
+    const res = await api.post('/api/suppliers', input)
+    return res.data
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+export async function updateSupplier(id: string, input: Partial<Supplier>): Promise<Supplier> {
+  try {
+    const res = await api.put(`/api/suppliers/${id}`, input)
+    return res.data
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+export async function deleteSupplier(id: string): Promise<void> {
+  try {
+    await api.delete(`/api/suppliers/${id}`)
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+// --- Settings ---
+
+export type UserSettings = {
+  id?: string
+  darkMode?: boolean
+  emailNotifications?: boolean
+  pushNotifications?: boolean
+  smsNotifications?: boolean
+  currency?: string
+  language?: string
+  lowStockThreshold?: number
+  theme?: string
+  storeName?: string
+}
+
+export async function getSettings(): Promise<UserSettings> {
+  try {
+    const res = await api.get('/api/settings')
+    return res.data
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+export async function updateSettings(input: Partial<UserSettings>): Promise<UserSettings> {
+  try {
+    const res = await api.put('/api/settings', input)
+    return res.data
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+// --- Notifications ---
+
+export type Notification = {
+  id?: string
+  user_id?: string
+  title: string
+  message: string
+  type: 'info' | 'success' | 'warning' | 'error'
+  read: boolean
+  created_at?: string
+}
+
+export async function getNotifications(): Promise<Notification[]> {
+  try {
+    const res = await api.get('/api/notifications')
+    return Array.isArray(res.data) ? res.data : []
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+export async function markNotificationRead(id: string): Promise<void> {
+  try {
+    await api.put(`/api/notifications/${id}/read`)
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+export async function deleteNotification(id: string): Promise<void> {
+  try {
+    await api.delete(`/api/notifications/${id}`)
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+// --- Inventory Intelligence ---
+
+export type StockAlert = {
+  product_id: string
+  product_name: string
+  current_stock: number
+  threshold: number
+  severity: 'low' | 'critical'
+}
+
+export async function getInventoryStockAlerts(): Promise<StockAlert[]> {
+  try {
+    const res = await api.get('/api/inventory/stock-alerts')
+    return Array.isArray(res.data.alerts) ? res.data.alerts : []
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+export async function optimizeInventory(): Promise<{ recommendations: string[] }> {
+  try {
+    const res = await api.post('/api/inventory/optimization')
+    return res.data
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+export async function getInventoryForecast(): Promise<{ forecast: Record<string, number> }> {
+  try {
+    const res = await api.get('/api/inventory/forecast')
+    return res.data
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+// --- Pricing Engine ---
+
+export async function optimizePricing(productIds: string[]): Promise<{ recommendations: Record<string, number> }> {
+  try {
+    const res = await api.post('/api/pricing/optimize', { product_ids: productIds })
+    return res.data
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+export async function getCompetitorAnalysis(productId: string): Promise<{ competitor_prices: Record<string, number> }> {
+  try {
+    const res = await api.get(`/api/pricing/competitor-analysis?product_id=${productId}`)
+    return res.data
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+export async function getDemandBasedPricing(productId: string): Promise<{ recommended_price: number; demand_score: number }> {
+  try {
+    const res = await api.post('/api/pricing/demand-based', { product_id: productId })
+    return res.data
+  } catch (error) {
+    handleError(error)
+  }
+}

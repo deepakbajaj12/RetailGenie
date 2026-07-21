@@ -1,34 +1,71 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Thermometer, Droplets, AlertOctagon, Snowflake, History, Check, AlertTriangle } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Thermometer, Droplets, AlertOctagon, Snowflake, Check, AlertTriangle } from 'lucide-react'
+import { getColdChainMetrics, type ColdChainMetric } from '@/lib/api'
+
+// Locally typed sensor merges backend ColdChainMetric with UI display fields
+type Sensor = {
+  id: string
+  name: string
+  temp: number
+  humidity: number
+  status: string
+  target: number
+}
+
+// Default fallback sensors for when the backend is unavailable
+const DEFAULT_SENSORS: Sensor[] = [
+  { id: 'F-01', name: 'Dairy Walk-in', temp: 3.2, humidity: 45, status: 'Optimal', target: 3.0 },
+  { id: 'F-02', name: 'Meat Freezer', temp: -18.5, humidity: 30, status: 'Optimal', target: -18.0 },
+  { id: 'F-03', name: 'Produce Display', temp: 8.1, humidity: 85, status: 'Warning', target: 5.0 },
+  { id: 'F-04', name: 'Seafood Case', temp: 1.5, humidity: 60, status: 'Optimal', target: 1.0 },
+  { id: 'F-05', name: 'Ice Cream Bunker', temp: -12.0, humidity: 25, status: 'Critical', target: -20.0 },
+]
+
+// Map backend ColdChainMetric to our display Sensor type
+function mapMetricToSensor(metric: ColdChainMetric): Sensor {
+  return {
+    id: metric.id,
+    name: metric.zone,
+    temp: metric.temperature,
+    humidity: metric.humidity,
+    status: metric.status === 'Normal' ? 'Optimal' : metric.status,
+    target: metric.temperature, // use current as target when not provided
+  }
+}
 
 export default function ColdChainPage() {
-  const [sensors, setSensors] = useState([
-    { id: 'F-01', name: 'Dairy Walk-in', temp: 3.2, humidity: 45, status: 'Optimal', target: 3.0 },
-    { id: 'F-02', name: 'Meat Freezer', temp: -18.5, humidity: 30, status: 'Optimal', target: -18.0 },
-    { id: 'F-03', name: 'Produce Display', temp: 8.1, humidity: 85, status: 'Warning', target: 5.0 },
-    { id: 'F-04', name: 'Seafood Case', temp: 1.5, humidity: 60, status: 'Optimal', target: 1.0 },
-    { id: 'F-05', name: 'Ice Cream Bunker', temp: -12.0, humidity: 25, status: 'Critical', target: -20.0 },
-  ])
+  const [sensors, setSensors] = useState<Sensor[]>(DEFAULT_SENSORS)
+  const [liveMode, setLiveMode] = useState(false) // true = backend connected
 
-  // Simulate temperature fluctuations
+  const fetchMetrics = useCallback(async () => {
+    try {
+      const data = await getColdChainMetrics()
+      if (data && data.length > 0) {
+        setSensors(data.map(mapMetricToSensor))
+        setLiveMode(true)
+      }
+    } catch {
+      // Backend unavailable — simulate small temperature drift on the current data
+      if (!liveMode) {
+        setSensors(prev => prev.map(sensor => {
+          const drift = (Math.random() - 0.5) * 0.5
+          const newTemp = Number((sensor.temp + drift).toFixed(1))
+          const diff = Math.abs(newTemp - sensor.target)
+          const status = diff > 5 ? 'Critical' : diff > 2 ? 'Warning' : 'Optimal'
+          return { ...sensor, temp: newTemp, status }
+        }))
+      }
+    }
+  }, [liveMode])
+
+  // Fetch immediately then poll every 5 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSensors(prev => prev.map(sensor => {
-        const drift = (Math.random() - 0.5) * 0.5
-        const newTemp = Number((sensor.temp + drift).toFixed(1))
-        
-        let status = 'Optimal'
-        const diff = Math.abs(newTemp - sensor.target)
-        if (diff > 5) status = 'Critical'
-        else if (diff > 2) status = 'Warning'
-
-        return { ...sensor, temp: newTemp, status }
-      }))
-    }, 2000)
+    fetchMetrics()
+    const interval = setInterval(fetchMetrics, 5000)
     return () => clearInterval(interval)
-  }, [])
+  }, [fetchMetrics])
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
