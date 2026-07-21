@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify, request
 from utils.firebase_utils import FirebaseUtils
+from middleware.auth_middleware import require_auth
 
 logger = logging.getLogger(__name__)
 order_bp = Blueprint("orders", __name__)
@@ -23,6 +24,7 @@ def get_orders():
 
 
 @order_bp.route("", methods=["POST"])
+@require_auth
 def create_order():
     """Create a new order"""
     try:
@@ -52,6 +54,7 @@ def create_order():
 
 
 @order_bp.route("/<order_id>", methods=["PUT"])
+@require_auth
 def update_order(order_id):
     """Update order status"""
     try:
@@ -79,6 +82,7 @@ def update_order(order_id):
 
 
 @order_bp.route("/<order_id>", methods=["DELETE"])
+@require_auth
 def delete_order(order_id):
     """Delete an order"""
     try:

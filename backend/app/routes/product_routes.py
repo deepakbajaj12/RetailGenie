@@ -2,6 +2,7 @@ import logging
 
 from controllers.product_controller import ProductController
 from flask import Blueprint, jsonify, request
+from middleware.auth_middleware import require_auth
 
 logger = logging.getLogger(__name__)
 product_bp = Blueprint("products", __name__)
@@ -34,6 +35,7 @@ def get_product(product_id):
 
 
 @product_bp.route("", methods=["POST"])
+@require_auth
 def create_product():
     """Create a new product"""
     try:
@@ -76,6 +78,7 @@ def create_product():
 
 
 @product_bp.route("/<product_id>", methods=["PUT"])
+@require_auth
 def update_product(product_id):
     """Update an existing product"""
     try:
@@ -108,6 +111,7 @@ def update_product(product_id):
 
 
 @product_bp.route("/<product_id>", methods=["DELETE"])
+@require_auth
 def delete_product(product_id):
     """Delete a product"""
     try:

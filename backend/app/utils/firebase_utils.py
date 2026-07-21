@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class FirebaseUtils:
+    _mock_data = {}  # Class-level persistent mock database
+
     def __init__(self):
         """Initialize Firebase connection"""
         try:
@@ -37,9 +39,8 @@ class FirebaseUtils:
 
         except Exception as e:
             logger.error(f"Failed to initialize Firebase: {str(e)}")
-            # Create a mock database for development/testing
+            # Use mock database for development/testing
             self.db = None
-            self._mock_data = {}
             logger.warning("Using mock database - Firebase not available")
 
     def create_document(

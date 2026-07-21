@@ -36,6 +36,10 @@ def create_app(config_class=None):
 
     # Email is handled via utils.email_utils.EmailUtils (raw SMTP) — no Flask-Mail init needed.
 
+    # Initialize AuthMiddleware
+    from middleware.auth_middleware import AuthMiddleware
+    AuthMiddleware(app)
+
     # Import and register blueprints
     from routes.admin_routes import admin_bp
     from routes.ai_assistant_routes import ai_assistant_bp
@@ -44,11 +48,13 @@ def create_app(config_class=None):
     from routes.auth_routes import auth_bp
     from routes.feedback_routes import feedback_bp
     from routes.inventory_routes import inventory_bp
+    from routes.notification_routes import notification_bp
     from routes.order_routes import order_bp
     from routes.predict_demand_routes import predict_demand_bp
     from routes.pricing_routes import pricing_bp
     from routes.product_routes import product_bp
     from routes.safety_routes import safety_bp
+    from routes.settings_routes import settings_bp
     from routes.supplier_routes import supplier_bp
 
     # Register blueprints with prefixes matching what the frontend expects
@@ -66,6 +72,8 @@ def create_app(config_class=None):
     app.register_blueprint(ai_assistant_bp, url_prefix="/api/assistant")
     app.register_blueprint(pricing_bp, url_prefix="/api/pricing")
     app.register_blueprint(supplier_bp, url_prefix="/api/suppliers")
+    app.register_blueprint(settings_bp, url_prefix="/api/settings")
+    app.register_blueprint(notification_bp, url_prefix="/api/notifications")
 
     @app.route("/", methods=["GET"])
     def home():
