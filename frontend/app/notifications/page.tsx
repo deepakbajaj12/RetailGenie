@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Bell, AlertTriangle, Info, CheckCircle, Trash2, RefreshCw, Loader2 } from 'lucide-react'
-import { getNotifications, markNotificationRead, deleteNotification, type Notification } from '@/lib/api'
+import { getNotifications, markNotificationRead, deleteNotification, type AppNotification } from '@/lib/api'
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)

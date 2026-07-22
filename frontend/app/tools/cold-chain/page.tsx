@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Thermometer, Droplets, AlertOctagon, Snowflake, Check, AlertTriangle } from 'lucide-react'
+import { Thermometer, Droplets, AlertOctagon, Snowflake, Check, History } from 'lucide-react'
 import { getColdChainMetrics, type ColdChainMetric } from '@/lib/api'
 
 // Locally typed sensor merges backend ColdChainMetric with UI display fields

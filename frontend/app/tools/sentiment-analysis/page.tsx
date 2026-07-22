@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Smile, Frown, Meh, Activity, Users, Camera, BarChart3 } from 'lucide-react'
+import { Smile, Frown, Meh, Activity, Users, BarChart3 } from 'lucide-react'
 import { getStoreSentiment } from '@/lib/api'
 
 export default function SentimentAnalysisPage() {
   const [overallMood, setOverallMood] = useState(78) // 0-100
   const [moodLabel, setMoodLabel] = useState('Happy')
-  const [activeShopers, setActiveShoppers] = useState(42)
+  const [activeShoppers, setActiveShoppers] = useState(42)
   const [faces, setFaces] = useState([
     { id: 1, x: 20, y: 30, mood: 'Happy', score: 0.9, age: '25-34' },
     { id: 2, x: 60, y: 45, mood: 'Neutral', score: 0.5, age: '45-54' },
@@ -76,6 +76,14 @@ export default function SentimentAnalysisPage() {
               <div className={`w-12 h-12 rounded-full flex items-center justify-center ${overallMood > 70 ? 'bg-green-100 text-green-600' : overallMood > 40 ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600'}`}>
                 {overallMood > 70 ? <Smile className="h-6 w-6" /> : overallMood > 40 ? <Meh className="h-6 w-6" /> : <Frown className="h-6 w-6" />}
               </div>
+            </div>
+            <div className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <p className="text-xs text-gray-500 uppercase font-bold">Active Shoppers</p>
+              <p className="text-2xl font-bold text-blue-600">{activeShoppers}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <p className="text-xs text-gray-500 uppercase font-bold">Overall Mood</p>
+              <p className={`text-lg font-bold ${overallMood > 70 ? 'text-green-500' : overallMood > 40 ? 'text-yellow-500' : 'text-red-500'}`}>{moodLabel}</p>
             </div>
           </div>
         </div>

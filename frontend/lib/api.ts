@@ -389,8 +389,8 @@ export async function updateSettings(input: Partial<UserSettings>): Promise<User
 }
 
 // --- Notifications ---
-
-export type Notification = {
+// Named 'AppNotification' to avoid conflict with browser's built-in Notification API
+export type AppNotification = {
   id?: string
   user_id?: string
   title: string
@@ -400,7 +400,7 @@ export type Notification = {
   created_at?: string
 }
 
-export async function getNotifications(): Promise<Notification[]> {
+export async function getNotifications(): Promise<AppNotification[]> {
   try {
     const res = await api.get('/api/notifications')
     return Array.isArray(res.data) ? res.data : []

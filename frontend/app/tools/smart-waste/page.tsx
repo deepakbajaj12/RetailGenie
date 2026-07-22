@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Trash2, AlertTriangle, CheckCircle, Truck } from 'lucide-react'
+import { Trash2, AlertTriangle, CheckCircle, Truck, Recycle, Leaf, RefreshCw } from 'lucide-react'
 import { getWasteMetrics, type WasteMetric } from '@/lib/api'
 
 type Bin = {
