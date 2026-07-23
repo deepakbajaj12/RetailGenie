@@ -18,7 +18,7 @@ repos:
     rev: v1.11.2
     hooks:
       - id: mypy
-        args: ['--ignore-missing-imports', '--no-strict-optional', '--exclude=backend/app.py']
+        args: ['--ignore-missing-imports', '--no-strict-optional', '--exclude=app\.py']
         additional_dependencies: [types-requests, types-redis]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
