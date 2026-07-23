@@ -20,8 +20,9 @@ current_dir = (
 )
 sys.path.insert(0, current_dir)
 
-from config import Config
 from utils.firebase_utils import FirebaseUtils
+
+from config import Config
 
 # Initialize Flask app
 app = Flask(__name__)

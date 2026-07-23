@@ -2,7 +2,6 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 from flask import Blueprint, jsonify
-
 from utils.firebase_utils import FirebaseUtils
 
 logger = logging.getLogger(__name__)
@@ -95,9 +94,7 @@ def get_dashboard_data():
 
         # ── If DB is empty (first run / mock mode) use sensible defaults ─
         if not all_products and not all_orders:
-            logger.warning(
-                "No data in Firebase — returning demo analytics data"
-            )
+            logger.warning("No data in Firebase — returning demo analytics data")
             return _demo_dashboard()
 
         return (

@@ -1,6 +1,5 @@
-from flask import Blueprint, jsonify, request
-
 from controllers.ai_assistant_controller import AIAssistantController
+from flask import Blueprint, jsonify, request
 
 ai_assistant_bp = Blueprint("ai_assistant", __name__)
 ai_assistant = AIAssistantController()

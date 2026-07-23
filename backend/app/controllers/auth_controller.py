@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 
 import bcrypt
 import jwt
-
 from models.user_model import User
 from utils.firebase_utils import FirebaseUtils
 

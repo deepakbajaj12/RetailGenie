@@ -1,6 +1,5 @@
-from flask import Blueprint, jsonify, request
-
 from controllers.pricing_controller import PricingController
+from flask import Blueprint, jsonify, request
 
 pricing_bp = Blueprint("pricing", __name__)
 pricing_controller = PricingController()

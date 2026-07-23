@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
-
 from controllers.ai_engine import AIEngine
 from utils.firebase_utils import FirebaseUtils
 

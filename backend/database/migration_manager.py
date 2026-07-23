@@ -227,14 +227,12 @@ class MigrationManager:
         if results["failed_count"] > 0:
             results["status"] = "partial_failure"
 
-        logger.info(
-            f"""
+        logger.info(f"""
         🎯 Migration Summary:
         ✅ Applied: {results['applied_count']} migrations
         ❌ Failed: {results['failed_count']} migrations
         📊 Total pending: {results['pending_count']} migrations
-        """
-        )
+        """)
 
         return results
 
@@ -362,8 +360,7 @@ def main():
     manager = MigrationManager()
 
     if len(sys.argv) < 2:
-        print(
-            """
+        print("""
 Database Migration Manager
 
 Usage:
@@ -373,23 +370,20 @@ Usage:
   python migration_manager.py run <file>     - Run specific migration
   python migration_manager.py migrate        - Run all pending migrations
   python migration_manager.py create <name>  - Create new migration template
-        """
-        )
+        """)
         return
 
     command = sys.argv[1]
 
     if command == "status":
         status = manager.get_migration_status()
-        print(
-            f"""
+        print(f"""
 📊 Migration Status:
   Current Version: {status['current_version']}
   Migrations Applied: {status['migrations_applied']}
   Last Migration: {status.get('last_migration', 'None')}
   Status: {status['status']}
-        """
-        )
+        """)
 
     elif command == "list":
         migrations = manager.list_available_migrations()

@@ -27,12 +27,12 @@ def main():
     print(
         f"""
     🚀 RetailGenie Backend Starting (WSGI)...
-    
+
     📍 Server: http://{host}:{port}
     🔧 Environment: {app.config.get('ENV', 'development')}
     🐛 Debug Mode: {debug}
     📊 Health Check: http://{host}:{port}/health
-    
+
     📁 Perfect Structure Implemented ✅
     """
     )

@@ -2,7 +2,6 @@ import json
 from unittest.mock import Mock, patch
 
 import pytest
-
 from utils.firebase_utils import FirebaseUtils
 
 

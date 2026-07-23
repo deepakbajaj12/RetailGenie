@@ -2,8 +2,8 @@ import logging
 from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify, request
-from utils.firebase_utils import FirebaseUtils
 from middleware.auth_middleware import require_auth
+from utils.firebase_utils import FirebaseUtils
 
 logger = logging.getLogger(__name__)
 order_bp = Blueprint("orders", __name__)

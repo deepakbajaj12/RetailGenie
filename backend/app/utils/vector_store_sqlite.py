@@ -25,8 +25,7 @@ def _connect() -> sqlite3.Connection:
 
 def init_db() -> None:
     with _connect() as conn:
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS embeddings (
               key TEXT PRIMARY KEY,
               id TEXT,
@@ -35,8 +34,7 @@ def init_db() -> None:
               category TEXT,
               name TEXT
             );
-            """
-        )
+            """)
         conn.commit()
 
 

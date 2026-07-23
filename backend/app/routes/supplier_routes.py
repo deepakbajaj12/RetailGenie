@@ -2,7 +2,6 @@ import logging
 from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify, request
-
 from utils.firebase_utils import FirebaseUtils
 
 logger = logging.getLogger(__name__)

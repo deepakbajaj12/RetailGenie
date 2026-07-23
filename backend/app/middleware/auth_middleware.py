@@ -3,10 +3,11 @@ Authentication Middleware
 Perfect Structure Implementation
 """
 
-from functools import wraps
-from flask import request, jsonify, current_app
-import jwt
 from datetime import datetime
+from functools import wraps
+
+import jwt
+from flask import current_app, jsonify, request
 
 
 class AuthMiddleware:
@@ -74,7 +75,11 @@ class AuthMiddleware:
                 # Validate API key logic here
                 # For now, accept any API key starting with 'rg_'
                 if api_key.startswith("rg_"):
-                    request.current_user = {"type": "api_key", "key": api_key, "role": "admin"}
+                    request.current_user = {
+                        "type": "api_key",
+                        "key": api_key,
+                        "role": "admin",
+                    }
                     return None
                 else:
                     return jsonify({"error": "Invalid API key"}), 401
@@ -98,31 +103,41 @@ def require_auth(f):
         if not hasattr(request, "current_user"):
             # Attempt to authenticate inline
             auth_header = request.headers.get("Authorization")
-            
+
             # In testing mode, auto-login with mock user if no auth header is present
             # but ONLY for product endpoints to let legacy tests pass.
             if current_app.config.get("TESTING") and not auth_header:
-                if any(request.path.startswith(p) for p in ["/api/products", "/predict-demand"]):
-                    request.current_user = {"user_id": "test-user-id", "email": "test@example.com", "role": "admin"}
+                if any(
+                    request.path.startswith(p)
+                    for p in ["/api/products", "/predict-demand"]
+                ):
+                    request.current_user = {
+                        "user_id": "test-user-id",
+                        "email": "test@example.com",
+                        "role": "admin",
+                    }
                     return f(*args, **kwargs)
 
             if not auth_header:
                 return jsonify({"error": "Authentication required"}), 401
-            
+
             try:
                 # Remove Bearer prefix if present
                 token = auth_header
                 if auth_header.startswith("Bearer "):
                     token = auth_header.split(" ")[1]
-                
+
                 import os
-                secret_key = current_app.config.get("JWT_SECRET_KEY") or os.getenv("JWT_SECRET_KEY", "jwt-secret-key-change-in-production")
+
+                secret_key = current_app.config.get("JWT_SECRET_KEY") or os.getenv(
+                    "JWT_SECRET_KEY", "jwt-secret-key-change-in-production"
+                )
                 payload = jwt.decode(token, secret_key, algorithms=["HS256"])
-                
+
                 # Check expiration
                 if payload.get("exp", 0) < datetime.utcnow().timestamp():
                     return jsonify({"error": "Token expired"}), 401
-                    
+
                 request.current_user = payload
             except jwt.InvalidTokenError:
                 return jsonify({"error": "Invalid token"}), 401

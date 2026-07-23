@@ -1,6 +1,8 @@
 import json
 from unittest.mock import patch
+
 import pytest
+
 
 @pytest.fixture
 def mock_jwt_decode():

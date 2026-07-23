@@ -2,6 +2,7 @@
 """
 Database Initialization Script for RetailGenie
 """
+
 import os
 import sys
 from datetime import datetime

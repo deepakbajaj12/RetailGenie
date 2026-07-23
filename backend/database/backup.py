@@ -124,14 +124,12 @@ class DatabaseBackup:
         # Create summary file
         self._create_backup_summary(backup_results, failed_backups)
 
-        logger.info(
-            f"""
+        logger.info(f"""
         🎯 Backup Summary:
         ✅ Successfully backed up: {len(backup_results)} collections
         ❌ Failed: {len(failed_backups)} collections
         📁 Backup directory: {self.backup_dir}
-        """
-        )
+        """)
 
         return backup_results
 
@@ -180,14 +178,12 @@ class DatabaseBackup:
                     logger.error(f"Failed to restore document: {str(e)}")
                     failure_count += 1
 
-            logger.info(
-                f"""
+            logger.info(f"""
             🎯 Restore Summary:
             ✅ Successfully restored: {success_count} documents
             ❌ Failed: {failure_count} documents
             📊 Total: {len(documents)} documents
-            """
-            )
+            """)
 
             return failure_count == 0
 

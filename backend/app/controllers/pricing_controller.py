@@ -62,9 +62,11 @@ class PricingController:
                     base_price * demand_index * season_multiplier * stock_factor, 2
                 )
                 change_pct = round(
-                    ((recommended_price - base_price) / base_price * 100)
-                    if base_price
-                    else 0,
+                    (
+                        ((recommended_price - base_price) / base_price * 100)
+                        if base_price
+                        else 0
+                    ),
                     1,
                 )
 
@@ -203,9 +205,11 @@ class PricingController:
 
             recommended_price = round(base_price * demand_factor, 2)
             change_pct = round(
-                ((recommended_price - base_price) / base_price * 100)
-                if base_price
-                else 0,
+                (
+                    ((recommended_price - base_price) / base_price * 100)
+                    if base_price
+                    else 0
+                ),
                 1,
             )
 
@@ -257,7 +261,9 @@ class PricingController:
     def _price_recommendation(self, our_price: float, avg_price: float) -> str:
         diff_pct = (our_price - avg_price) / avg_price * 100 if avg_price else 0
         if diff_pct > 10:
-            return "Consider lowering price — you are significantly above market average"
+            return (
+                "Consider lowering price — you are significantly above market average"
+            )
         elif diff_pct < -10:
             return "Room to increase price — you are well below market average"
         else:

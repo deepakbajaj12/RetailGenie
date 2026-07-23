@@ -38,6 +38,7 @@ def create_app(config_class=None):
 
     # Initialize AuthMiddleware
     from middleware.auth_middleware import AuthMiddleware
+
     AuthMiddleware(app)
 
     # Import and register blueprints
